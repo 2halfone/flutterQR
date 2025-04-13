@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// Import di preview_screen.dart rimosso perché non più necessario
+import 'vercel_app_view.dart'; // Aggiungo l'import per la schermata WebView
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -17,18 +17,16 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 20),
-              // Rimossa la scritta "Welcome to QR Code Customizer"
               const Center(
                 child: Text(
                   'Choose the type of QR code you want to create',
                   style: TextStyle(
-                    fontSize: 18, // Aumentata leggermente la dimensione
+                    fontSize: 18,
                     color: Colors.grey,
                   ),
                 ),
               ),
               const SizedBox(height: 30),
-              // QR Code Scanner - ora è il primo bottone
               _buildOptionCard(
                 context,
                 title: 'QR Code Scanner',
@@ -44,10 +42,8 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 16),
-              // Row con due bottoni di dimensioni uguali per Dynamic QR e Static QR Code
               Row(
                 children: [
-                  // Dynamic QR button
                   Expanded(
                     child: _buildHalfSizeOptionCard(
                       context,
@@ -64,7 +60,6 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  // Static QR Code button
                   Expanded(
                     child: _buildHalfSizeOptionCard(
                       context,
@@ -83,7 +78,6 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              // QR Code Customizer - ora è l'ultimo bottone
               _buildOptionCard(
                 context,
                 title: 'QR Code Customizer',
@@ -91,12 +85,10 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.qr_code,
                 color: Colors.blue,
                 onTap: () {
-                  // Rimosso il reindirizzamento a PreviewScreen
-                  // Sostituito con un messaggio temporaneo
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Funzionalità in fase di aggiornamento'),
-                    ),
+                  // Apro la schermata WebView con l'app Next.js su Vercel
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const VercelAppView()),
                   );
                 },
               ),
