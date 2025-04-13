@@ -15,6 +15,7 @@ class MenuAnimation extends StatefulWidget {
   final String value;
   final Function(String) onChange;
   final EdgeInsetsGeometry padding;
+  final double? fontSize;
 
   const MenuAnimation({
     Key? key,
@@ -23,6 +24,7 @@ class MenuAnimation extends StatefulWidget {
     required this.value,
     required this.onChange,
     this.padding = EdgeInsets.zero,
+    this.fontSize,
   }) : super(key: key);
 
   @override
@@ -49,15 +51,17 @@ class _MenuAnimationState extends State<MenuAnimation> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            widget.label,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+          if (widget.label.isNotEmpty)
+            Text(
+              widget.label,
+              style: TextStyle(
+                fontSize: widget.fontSize ?? 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
+          if (widget.label.isNotEmpty)
+            const SizedBox(height: 8),
           CompositedTransformTarget(
             link: _layerLink,
             child: GestureDetector(
@@ -68,7 +72,10 @@ class _MenuAnimationState extends State<MenuAnimation> {
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: EdgeInsets.symmetric(
+                  horizontal: widget.fontSize != null ? 12 : 16, 
+                  vertical: widget.fontSize != null ? 8 : 12
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -76,7 +83,7 @@ class _MenuAnimationState extends State<MenuAnimation> {
                       children: [
                         Icon(
                           Icons.check_circle_outline,
-                          size: 18,
+                          size: widget.fontSize != null ? 14 : 18,
                           color: Colors.grey.shade600,
                         ),
                         const SizedBox(width: 8),
@@ -84,7 +91,7 @@ class _MenuAnimationState extends State<MenuAnimation> {
                           selectedItem?.label ?? 'Select an option',
                           style: TextStyle(
                             color: Colors.grey.shade800,
-                            fontSize: 14,
+                            fontSize: widget.fontSize ?? 14,
                           ),
                         ),
                       ],
@@ -95,6 +102,7 @@ class _MenuAnimationState extends State<MenuAnimation> {
                       child: Icon(
                         Icons.keyboard_arrow_down,
                         color: Colors.grey.shade600,
+                        size: widget.fontSize != null ? 16 : 20,
                       ),
                     ),
                   ],
@@ -133,7 +141,7 @@ class _MenuAnimationState extends State<MenuAnimation> {
             elevation: 4,
             borderRadius: BorderRadius.circular(8),
             child: Container(
-              height: math.min(300, widget.items.length * 50),
+              height: math.min(300, widget.items.length * (widget.fontSize != null ? 40 : 50)),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.white,
@@ -152,7 +160,10 @@ class _MenuAnimationState extends State<MenuAnimation> {
                       _toggleDropdown();
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: widget.fontSize != null ? 12 : 16, 
+                        vertical: widget.fontSize != null ? 8 : 12
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.transparent,
                         border: Border(
@@ -171,7 +182,7 @@ class _MenuAnimationState extends State<MenuAnimation> {
                             item.label,
                             style: TextStyle(
                               color: Colors.grey.shade800,
-                              fontSize: 14,
+                              fontSize: widget.fontSize ?? 14,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                             ),
                           ),
@@ -179,7 +190,7 @@ class _MenuAnimationState extends State<MenuAnimation> {
                             Icon(
                               Icons.check,
                               color: Colors.blue,
-                              size: 18,
+                              size: widget.fontSize != null ? 14 : 18,
                             ),
                         ],
                       ),
