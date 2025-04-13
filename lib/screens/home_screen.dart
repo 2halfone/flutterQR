@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'vercel_app_view.dart'; // Aggiungo l'import per la schermata WebView
+import 'scan_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -34,10 +35,9 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.qr_code_scanner,
                 color: Colors.purple,
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('QR Code Scanner coming soon!'),
-                    ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ScanScreen()),
                   );
                 },
               ),

@@ -19,6 +19,7 @@ dependencies:
   permission_handler: ^11.0.1
   image: ^4.0.15
   webview_flutter: ^4.4.2
+  mobile_scanner: ^3.5.1
 
 dev_dependencies:
   flutter_test:
