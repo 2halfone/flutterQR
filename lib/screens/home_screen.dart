@@ -28,18 +28,17 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 30),
+              // QR Code Scanner - ora è il primo bottone
               _buildOptionCard(
                 context,
-                title: 'QR Code Customizer',
-                description: 'Create a QR code with fixed content that cannot be changed after creation.',
-                icon: Icons.qr_code,
-                color: Colors.blue,
+                title: 'QR Code Scanner',
+                description: 'Scan QR codes using your camera.',
+                icon: Icons.qr_code_scanner,
+                color: Colors.purple,
                 onTap: () {
-                  // Rimosso il reindirizzamento a PreviewScreen
-                  // Sostituito con un messaggio temporaneo
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Funzionalità in fase di aggiornamento'),
+                      content: Text('QR Code Scanner coming soon!'),
                     ),
                   );
                 },
@@ -84,16 +83,19 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
+              // QR Code Customizer - ora è l'ultimo bottone
               _buildOptionCard(
                 context,
-                title: 'QR Code Scanner',
-                description: 'Scan QR codes using your camera.',
-                icon: Icons.qr_code_scanner,
-                color: Colors.purple,
+                title: 'QR Code Customizer',
+                description: 'Create a QR code with fixed content that cannot be changed after creation.',
+                icon: Icons.qr_code,
+                color: Colors.blue,
                 onTap: () {
+                  // Rimosso il reindirizzamento a PreviewScreen
+                  // Sostituito con un messaggio temporaneo
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('QR Code Scanner coming soon!'),
+                      content: Text('Funzionalità in fase di aggiornamento'),
                     ),
                   );
                 },
