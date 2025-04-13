@@ -68,14 +68,15 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 16),
               _buildOptionCard(
                 context,
-                title: 'Custom Template QR',
-                description: 'Create a QR code with custom templates and decorative frames.',
-                icon: Icons.style,
+                title: 'QR Code Scanner',
+                description: 'Scan QR codes using your camera.',
+                icon: Icons.qr_code_scanner,
                 color: Colors.purple,
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const PreviewScreen(isStatic: true, useTemplate: true)),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('QR Code Scanner coming soon!'),
+                    ),
                   );
                 },
               ),
