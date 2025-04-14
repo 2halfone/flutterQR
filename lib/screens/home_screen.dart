@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'vercel_app_view.dart'; // Aggiungo l'import per la schermata WebView
+import 'vercel_app_view.dart'; 
 import 'scan_screen.dart';
+import 'native_method_example.dart';
+import '../scanner_bridge.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -17,17 +19,6 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 20),
-              const Center(
-                child: Text(
-                  'Choose the type of QR code you want to create',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
               _buildOptionCard(
                 context,
                 title: 'QR Code Scanner',
@@ -85,7 +76,6 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.qr_code,
                 color: Colors.blue,
                 onTap: () {
-                  // Apro la schermata WebView con l'app Next.js su Vercel
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const VercelAppView()),

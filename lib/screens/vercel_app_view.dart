@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class VercelAppView extends StatefulWidget {
-  const VercelAppView({Key? key}) : super(key: key);
+  final String url;
+  
+  const VercelAppView({
+    Key? key, 
+    this.url = 'https://qr-generator-eight-tau.vercel.app/'
+  }) : super(key: key);
 
   @override
   State<VercelAppView> createState() => _VercelAppViewState();
@@ -27,7 +32,7 @@ class _VercelAppViewState extends State<VercelAppView> {
         ),
       )
       ..loadRequest(
-        Uri.parse('https://qr-generator-eight-tau.vercel.app/'),
+        Uri.parse(widget.url),
       );
   }
 
