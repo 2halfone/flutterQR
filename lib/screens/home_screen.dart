@@ -3,6 +3,7 @@ import 'vercel_app_view.dart';
 import 'scan_screen.dart';
 import 'native_method_example.dart';
 import '../scanner_bridge.dart';
+import 'daycare_qr_scanner_page.dart'; // Importo la nuova pagina
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -54,14 +55,13 @@ class HomeScreen extends StatelessWidget {
                   Expanded(
                     child: _buildHalfSizeOptionCard(
                       context,
-                      title: 'Static QR Code',
-                      icon: Icons.qr_code,
+                      title: 'Day Care',
+                      icon: Icons.elderly,
                       color: Colors.teal,
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Static QR Code functionality coming soon!'),
-                          ),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const DayCareQrScannerPage()),
                         );
                       },
                     ),
