@@ -69,7 +69,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   
                   if (responseStatus == 'success') {
                     setState(() {
-                      _responseMessage = '✅ Attendance recorded successfully!';
+                      _responseMessage = '✅ Presenza registrata con successo!';
                       _isSuccess = true;
                     });
                   } else if (responseStatus == 'error') {
@@ -88,14 +88,14 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   return;
                 }
               } catch (e) {
-                // Silently ignore JSON parse errors
+                // Ignora silenziosamente gli errori di parsing JSON
               }
               
               // Se non è JSON, controlla il testo della risposta
               final redirectText = redirectResponse.body.toLowerCase();
               if (redirectText.contains('success')) {
                 setState(() {
-                  _responseMessage = '✅ Attendance recorded successfully!';
+                  _responseMessage = '✅ Presenza registrata con successo!';
                   _isSuccess = true;
                 });
                 return;
@@ -118,7 +118,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
               }
             }
           } catch (e) {
-            // Silently ignore redirect errors
+            // Ignora silenziosamente gli errori di reindirizzamento
           }
         }
       }
@@ -133,7 +133,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
           // ... codice esistente per interpretare JSON ...
         }
       } catch (e) {
-        // Silently ignore JSON parse errors
+        // Ignora silenziosamente gli errori di parsing JSON
       }
       
       // Metodo di fallback: cerca parole chiave nel testo della risposta
@@ -141,7 +141,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
       
       if (responseText.contains('success')) {
         setState(() {
-          _responseMessage = '✅ Attendance recorded successfully!';
+          _responseMessage = '✅ Presenza registrata con successo!';
           _isSuccess = true;
         });
       } else if (responseText.contains('already_registered')) {
@@ -158,7 +158,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
       }
     } catch (e) {
       setState(() {
-        _responseMessage = 'Network error: $e';
+        _responseMessage = 'Errore di rete: $e';
         _isSuccess = false;
       });
     } finally {
@@ -168,7 +168,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     }
   }
 
-  // Helper method to translate error codes into user-friendly messages
+  // Metodo di supporto per tradurre i codici di errore in messaggi comprensibili
   String _getErrorMessage(String errorCode) {
     switch (errorCode) {
       case 'missing_body':
@@ -184,22 +184,22 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     }
   }
 
-  // Function to show absence reason dialog
+  // Funzione per mostrare la finestra di dialogo per il motivo dell'assenza
   Future<void> _showAbsenceReasonDialog() async {
-    String selectedReason = 'Illness';
+    String selectedReason = 'Malattia';
     
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Select Absence Reason'),
+        title: const Text('Seleziona motivo assenza'),
         content: StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 RadioListTile<String>(
-                  title: const Text('Illness'),
-                  value: 'Illness',
+                  title: const Text('Malattia'),
+                  value: 'Malattia',
                   groupValue: selectedReason,
                   onChanged: (value) {
                     if (value != null) {
@@ -208,8 +208,8 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   },
                 ),
                 RadioListTile<String>(
-                  title: const Text('Appointment'),
-                  value: 'Appointment',
+                  title: const Text('Appuntamento'),
+                  value: 'Appuntamento',
                   groupValue: selectedReason,
                   onChanged: (value) {
                     if (value != null) {
@@ -218,8 +218,8 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   },
                 ),
                 RadioListTile<String>(
-                  title: const Text('Vacation'),
-                  value: 'Vacation',
+                  title: const Text('Vacanza'),
+                  value: 'Vacanza',
                   groupValue: selectedReason,
                   onChanged: (value) {
                     if (value != null) {
@@ -228,8 +228,8 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   },
                 ),
                 RadioListTile<String>(
-                  title: const Text('Other'),
-                  value: 'Other',
+                  title: const Text('Altro'),
+                  value: 'Altro',
                   groupValue: selectedReason,
                   onChanged: (value) {
                     if (value != null) {
@@ -244,18 +244,18 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
+            child: const Text('ANNULLA'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, selectedReason),
-            child: const Text('CONFIRM'),
+            child: const Text('CONFERMA'),
           ),
         ],
       ),
     );
     
     if (result != null) {
-      _sendAttendanceStatus('Absent - $result');
+      _sendAttendanceStatus('Assente - $result');
     }
   }
 
@@ -263,7 +263,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Member Confirmation'),
+        title: const Text('Conferma Utente'),
       ),
       body: Container(
         padding: const EdgeInsets.all(20.0),
@@ -277,7 +277,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
             ),
             const SizedBox(height: 20),
             const Text(
-              'Member Verified',
+              'Utente Verificato',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -293,15 +293,15 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    _buildInfoRow('Name', widget.name),
+                    _buildInfoRow('Nome', widget.name),
                     const SizedBox(height: 16),
-                    _buildInfoRow('Surname', widget.surname),
+                    _buildInfoRow('Cognome', widget.surname),
                   ],
                 ),
               ),
             ),
             
-            // Show loading indicator, success/error message
+            // Mostra indicatore di caricamento, messaggio di successo/errore
             if (_isLoading)
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 20),
@@ -309,7 +309,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   children: [
                     CircularProgressIndicator(),
                     SizedBox(height: 10),
-                    Text('Recording attendance...'),
+                    Text('Registrazione presenza in corso...'),
                   ],
                 ),
               ),
@@ -333,22 +333,22 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
             
             const Spacer(),
             
-            // Present/Absent buttons side by side
+            // Pulsanti Presente/Assente affiancati
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : () => _sendAttendanceStatus('Present'),
+                    onPressed: _isLoading ? null : () => _sendAttendanceStatus('Presente'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: Column(
-                      children: const [
+                    child: const Column(
+                      children: [
                         Icon(Icons.check_circle, size: 30),
                         SizedBox(height: 8),
-                        Text('Present', style: TextStyle(fontSize: 16)),
+                        Text('Presente', style: TextStyle(fontSize: 16)),
                       ],
                     ),
                   ),
@@ -362,11 +362,11 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: Column(
-                      children: const [
+                    child: const Column(
+                      children: [
                         Icon(Icons.cancel, size: 30),
                         SizedBox(height: 8),
-                        Text('Absent', style: TextStyle(fontSize: 16)),
+                        Text('Assente', style: TextStyle(fontSize: 16)),
                       ],
                     ),
                   ),
@@ -376,12 +376,12 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
             
             const SizedBox(height: 16),
             
-            // Return button
+            // Pulsante di ritorno
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Return to Scanner'),
+              child: const Text('Torna allo Scanner'),
             ),
           ],
         ),
