@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'vercel_app_view.dart'; 
 import 'scan_screen.dart';
-import 'native_method_example.dart';
-import '../scanner_bridge.dart';
 import 'daycare_qr_scanner_page.dart'; // Importo la nuova pagina
 
 class HomeScreen extends StatelessWidget {

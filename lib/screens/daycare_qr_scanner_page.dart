@@ -3,7 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:vibration/vibration.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert'; // Import for JSON parsing
-import 'vercel_app_view.dart';  // Import per aprire URL nel webview
+// Import per aprire URL nel webview
 import '../scanner_bridge.dart'; // Import per funzionalità di scansione native
 import 'confirmation_screen.dart'; // Import for the confirmation screen
 

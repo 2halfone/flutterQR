@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:glassmorphism/glassmorphism.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class ConfirmationScreen extends StatefulWidget {
   final String name;
@@ -21,21 +24,24 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
   String? _responseMessage;
   bool _isSuccess = false;
 
+  // Define our tempered color scheme
+  final positiveGreen = Colors.green.shade600;
+  final absentRed = Colors.red.shade600;
+  final titleBlack = Colors.black;
+  final accentColor = Colors.blueGrey.shade600;
+
   // Function to send attendance status to Apps Script
   Future<void> _sendAttendanceStatus(String status) async {
-    // Set loading state
     setState(() {
       _isLoading = true;
       _responseMessage = null;
     });
 
     try {
-      // Crea URL senza parametri di query
       final url = Uri.parse(
         'https://script.google.com/macros/s/AKfycbzUZyMc8Ba7Q1GypBetribdIBjbvIzbm3vmXM7fZpF8aNsF9ApvEKzh_5vkq6PEVRfDEA/exec'
       );
       
-      // Invia una richiesta POST con JSON nel body
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -47,19 +53,15 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
         }),
       );
       
-      // Se riceviamo un reindirizzamento 302, estrai l'URL e seguilo
       if (response.statusCode == 302) {
         final redirectMatch = RegExp(r'HREF="([^"]*)"').firstMatch(response.body);
         if (redirectMatch != null) {
           final redirectUrl = redirectMatch.group(1)!.replaceAll('&amp;', '&');
           
           try {
-            // Effettuiamo una richiesta GET all'URL di reindirizzamento
             final redirectResponse = await http.get(Uri.parse(redirectUrl));
             
-            // Proviamo a interpretare questa risposta
             if (redirectResponse.statusCode == 200) {
-              // Prova a interpretarlo come JSON
               try {
                 final jsonData = jsonDecode(redirectResponse.body);
                 
@@ -87,11 +89,8 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   }
                   return;
                 }
-              } catch (e) {
-                // Ignora silenziosamente gli errori di parsing JSON
-              }
+              } catch (e) {}
               
-              // Se non è JSON, controlla il testo della risposta
               final redirectText = redirectResponse.body.toLowerCase();
               if (redirectText.contains('success')) {
                 setState(() {
@@ -117,14 +116,9 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                 }
               }
             }
-          } catch (e) {
-            // Ignora silenziosamente gli errori di reindirizzamento
-          }
+          } catch (e) {}
         }
       }
-      
-      // Se arriviamo qui, significa che non siamo riusciti a seguire il reindirizzamento,
-      // quindi proviamo a interpretare la risposta originale
       
       try {
         final jsonData = jsonDecode(response.body);
@@ -132,11 +126,8 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
         if (jsonData is Map && jsonData.containsKey('status')) {
           // ... codice esistente per interpretare JSON ...
         }
-      } catch (e) {
-        // Ignora silenziosamente gli errori di parsing JSON
-      }
+      } catch (e) {}
       
-      // Metodo di fallback: cerca parole chiave nel testo della risposta
       final responseText = response.body.toLowerCase();
       
       if (responseText.contains('success')) {
@@ -151,9 +142,8 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
         });
       } else {
         setState(() {
-          // Mostro invece un messaggio generico positivo
           _responseMessage = 'Operazione completata';
-          _isSuccess = true;  // Consideriamo l'operazione riuscita comunque
+          _isSuccess = true;
         });
       }
     } catch (e) {
@@ -168,245 +158,532 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     }
   }
 
-  // Metodo di supporto per tradurre i codici di errore in messaggi comprensibili
   String _getErrorMessage(String errorCode) {
     switch (errorCode) {
       case 'missing_body':
-        return 'Dati mancanti nella richiesta';
+        return 'Missing data in request';
       case 'missing_parameters': 
-        return 'Parametri obbligatori mancanti';
+        return 'Required parameters missing';
       case 'already_registered':
-        return 'Hai già registrato oggi';
+        return 'You have already registered today';
       case 'write_failed':
-        return 'Errore durante la scrittura sul foglio';
+        return 'Error writing to the sheet';
       default:
-        return 'Errore sconosciuto: $errorCode';
+        return 'Unknown error: $errorCode';
     }
   }
 
-  // Funzione per mostrare la finestra di dialogo per il motivo dell'assenza
   Future<void> _showAbsenceReasonDialog() async {
-    String selectedReason = 'Malattia';
+    String selectedReason = 'Illness';
     
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Seleziona motivo assenza'),
+        title: Text(
+          'Select Absence Reason',
+          style: GoogleFonts.playfairDisplay(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+          ),
+        ),
         content: StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                RadioListTile<String>(
-                  title: const Text('Malattia'),
-                  value: 'Malattia',
-                  groupValue: selectedReason,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => selectedReason = value);
-                    }
-                  },
-                ),
-                RadioListTile<String>(
-                  title: const Text('Appuntamento'),
-                  value: 'Appuntamento',
-                  groupValue: selectedReason,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => selectedReason = value);
-                    }
-                  },
-                ),
-                RadioListTile<String>(
-                  title: const Text('Vacanza'),
-                  value: 'Vacanza',
-                  groupValue: selectedReason,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => selectedReason = value);
-                    }
-                  },
-                ),
-                RadioListTile<String>(
-                  title: const Text('Altro'),
-                  value: 'Altro',
-                  groupValue: selectedReason,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => selectedReason = value);
-                    }
-                  },
-                ),
-              ],
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RadioListTile<String>(
+                    title: Row(
+                      children: [
+                        Icon(Icons.healing, color: accentColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Illness',
+                          style: GoogleFonts.lato(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    value: 'Illness',
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => selectedReason = value);
+                      }
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: Row(
+                      children: [
+                        Icon(Icons.event_available, color: accentColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Appointment',
+                          style: GoogleFonts.lato(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    value: 'Appointment',
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => selectedReason = value);
+                      }
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: Row(
+                      children: [
+                        Icon(Icons.local_hospital, color: accentColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Hospital',
+                          style: GoogleFonts.lato(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    value: 'Hospital',
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => selectedReason = value);
+                      }
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: Row(
+                      children: [
+                        Icon(Icons.family_restroom, color: accentColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Family',
+                          style: GoogleFonts.lato(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    value: 'Family',
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => selectedReason = value);
+                      }
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: Row(
+                      children: [
+                        Icon(Icons.beach_access, color: accentColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Vacation',
+                          style: GoogleFonts.lato(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    value: 'Vacation',
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => selectedReason = value);
+                      }
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: Row(
+                      children: [
+                        Icon(Icons.more_horiz, color: accentColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Other',
+                          style: GoogleFonts.lato(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    value: 'Other',
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => selectedReason = value);
+                      }
+                    },
+                  ),
+                ],
+              ),
             );
           },
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('ANNULLA'),
+            child: Text(
+              'CANCEL',
+              style: GoogleFonts.lato(
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade700,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, selectedReason),
-            child: const Text('CONFERMA'),
+            child: Text(
+              'CONFIRM',
+              style: GoogleFonts.lato(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ],
       ),
     );
     
     if (result != null) {
-      _sendAttendanceStatus('Assente - $result');
+      _sendAttendanceStatus('Absent - $result');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Conferma Utente'),
+        title: Text(
+          'Member Confirmation',
+          style: GoogleFonts.playfairDisplay(
+            fontWeight: FontWeight.w600,
+            color: titleBlack,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: Container(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.check_circle,
-              color: Colors.green,
-              size: 100,
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Utente Verificato',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/backgrounds/geometric-pattern.png'),
+            fit: BoxFit.cover,
+          ),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.blue.shade800.withOpacity(0.6),
+              Colors.purple.shade800.withOpacity(0.6),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 80),
+              // Check Icon using positive green
+              Icon(
+                Icons.check_circle,
+                color: positiveGreen,
+                size: 100,
+              )
+              .animate()
+              .scale(
+                begin: const Offset(0.5, 0.5),
+                end: const Offset(1.0, 1.0),
+                duration: 800.ms,
+                curve: Curves.easeOutBack,
               ),
-            ),
-            const SizedBox(height: 40),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    _buildInfoRow('Nome', widget.name),
-                    const SizedBox(height: 16),
-                    _buildInfoRow('Cognome', widget.surname),
-                  ],
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 60.0), // Increased bottom margin
+                child: Text(
+                  'Member Verified',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: positiveGreen,
+                    letterSpacing: 0.5,
+                  ),
+                )
+                .animate()
+                .fadeIn(duration: 800.ms, curve: Curves.easeOutBack)
+                .scale(
+                  begin: const Offset(0.7, 0.7),
+                  end: const Offset(1.0, 1.0),
+                  duration: 800.ms,
+                  curve: Curves.easeOutBack,
                 ),
               ),
-            ),
-            
-            // Mostra indicatore di caricamento, messaggio di successo/errore
-            if (_isLoading)
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 20),
-                child: const Column(
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 10),
-                    Text('Registrazione presenza in corso...'),
+              const SizedBox(height: 20),
+              // Elegant welcome message using italic style with accent color
+              Text(
+                'Welcome to Day Care Center',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontStyle: FontStyle.italic,
+                  color: accentColor,
+                ),
+              )
+              .animate()
+              .fadeIn(duration: 800.ms, curve: Curves.easeOutBack),
+              const SizedBox(height: 10),
+              // Display the name and surname
+              Text(
+                '${widget.name} ${widget.surname}',
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w500,
+                  color: titleBlack,
+                ),
+              )
+              .animate()
+              .fadeIn(duration: 800.ms, curve: Curves.easeOutBack),
+              const SizedBox(height: 20),
+              GlassmorphicContainer(
+                width: double.infinity,
+                height: 180,
+                borderRadius: 20,
+                blur: 20,
+                alignment: Alignment.center,
+                border: 2,
+                linearGradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withOpacity(0.1),
+                    Colors.white.withOpacity(0.05),
                   ],
                 ),
+                borderGradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withOpacity(0.5),
+                    Colors.white.withOpacity(0.5),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Confirm Attendance',
+                        style: GoogleFonts.playfairDisplay(
+                          color: accentColor,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () {
+                                      _sendAttendanceStatus('Present');
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: positiveGreen,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: Text(
+                                'Present',
+                                style: GoogleFonts.lato(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            )
+                            .animate()
+                            .slideX(
+                              begin: -0.5,
+                              end: 0,
+                              duration: 800.ms,
+                              curve: Curves.easeOutBack,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _showAbsenceReasonDialog,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: absentRed,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: Text(
+                                'Absent',
+                                style: GoogleFonts.lato(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            )
+                            .animate()
+                            .slideX(
+                              begin: 0.5,
+                              end: 0,
+                              duration: 800.ms,
+                              curve: Curves.easeOutBack,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              .animate()
+              .fadeIn(duration: 800.ms, curve: Curves.easeOutBack)
+              .scale(
+                begin: const Offset(0.9, 0.9),
+                end: const Offset(1.0, 1.0),
+                duration: 800.ms,
+                curve: Curves.easeOutBack,
               ),
               
-            if (_responseMessage != null)
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 20),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: _isSuccess ? Colors.green.shade100 : Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  _responseMessage!,
-                  style: TextStyle(
-                    color: _isSuccess ? Colors.green.shade800 : Colors.red.shade800,
-                    fontWeight: FontWeight.bold,
+              if (_isLoading)
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 20),
+                  child: Column(
+                    children: [
+                      const CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Recording attendance...',
+                        style: GoogleFonts.lato(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+              
+              if (_responseMessage != null)
+                GlassmorphicContainer(
+                  width: double.infinity,
+                  height: 60,
+                  borderRadius: 10,
+                  blur: 20,
+                  alignment: Alignment.center,
+                  border: 1,
+                  linearGradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      _isSuccess ? positiveGreen.withOpacity(0.1) : absentRed.withOpacity(0.1),
+                      _isSuccess ? positiveGreen.withOpacity(0.05) : absentRed.withOpacity(0.05),
+                    ],
+                  ),
+                  borderGradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      _isSuccess ? positiveGreen.withOpacity(0.5) : absentRed.withOpacity(0.5),
+                      _isSuccess ? positiveGreen.withOpacity(0.5) : absentRed.withOpacity(0.5),
+                    ],
+                  ),
+                  margin: const EdgeInsets.symmetric(vertical: 20),
+                  child: Center(
+                    child: Text(
+                      _responseMessage!.startsWith('✅')
+                          ? '✅ Attendance recorded successfully!'
+                          : _responseMessage!.contains('già registrato')
+                              ? 'You have already registered today'
+                              : _responseMessage!,
+                      style: GoogleFonts.lato(
+                        color: _responseMessage!.startsWith('✅') ? positiveGreen : absentRed,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                )
+                .animate()
+                .fadeIn(
+                  duration: 800.ms,
+                  curve: Curves.easeOutBack,
+                )
+                .scale(
+                  begin: const Offset(0.8, 0.8),
+                  end: const Offset(1.0, 1.0),
+                  duration: 800.ms,
+                  curve: Curves.easeOutBack,
+                ),
+              
+              const Spacer(),
+              
+              GlassmorphicContainer(
+                width: 200,
+                height: 50,
+                borderRadius: 25,
+                blur: 20,
+                alignment: Alignment.center,
+                border: 1,
+                linearGradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withOpacity(0.1),
+                    Colors.white.withOpacity(0.05),
+                  ],
+                ),
+                borderGradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withOpacity(0.5),
+                    Colors.white.withOpacity(0.5),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => Navigator.pop(context),
+                    borderRadius: BorderRadius.circular(25),
+                    child: Center(
+                      child: Text(
+                        'Back to Scanner',
+                        style: GoogleFonts.lato(
+                          color: accentColor,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+              .animate()
+              .fadeIn(
+                duration: 800.ms,
+                curve: Curves.easeOutBack,
+              )
+              .scale(
+                begin: const Offset(0.8, 0.8),
+                end: const Offset(1.0, 1.0),
+                duration: 800.ms,
+                curve: Curves.easeOutBack,
               ),
-            
-            const Spacer(),
-            
-            // Pulsanti Presente/Assente affiancati
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : () => _sendAttendanceStatus('Presente'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Column(
-                      children: [
-                        Icon(Icons.check_circle, size: 30),
-                        SizedBox(height: 8),
-                        Text('Presente', style: TextStyle(fontSize: 16)),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _showAbsenceReasonDialog,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Column(
-                      children: [
-                        Icon(Icons.cancel, size: 30),
-                        SizedBox(height: 8),
-                        Text('Assente', style: TextStyle(fontSize: 16)),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Pulsante di ritorno
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Torna allo Scanner'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      children: [
-        Text(
-          '$label:',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 16),
-          ),
-        ),
-      ],
     );
   }
 }
