@@ -1,6 +1,5 @@
 name: qr_code_customizer
 description: A Flutter application for customizing QR codes.
-
 publish_to: 'none'
 
 environment:
@@ -25,6 +24,7 @@ dependencies:
   flutter_layout_grid: ^1.0.3
   flutter_animate: ^4.2.0
   responsive_framework: ^0.2.0
+  table_calendar: ^3.0.8   # ← aggiunto
 
 dev_dependencies:
   flutter_test:
@@ -32,7 +32,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
   assets:
-    - assets/backgrounds/
-    - assets/frames/
+    - assets/images/sfondo_bottone.png
+    - assets/images/sfondo_bottone2.png
+    - assets/backgrounds/  # include all background patterns
+
