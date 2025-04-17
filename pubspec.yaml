@@ -35,5 +35,8 @@ flutter:
   assets:
     - assets/images/sfondo_bottone.png
     - assets/images/sfondo_bottone2.png
+    - assets/images/sfondo_bottone3.png
+    - assets/images/sfondo_bottone4.png
+    - assets/images/sfondo_bottone5.png
     - assets/backgrounds/  # include all background patterns
 
