@@ -9,78 +9,116 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('QR Code Dashboard'),
-      ),
-      body: SingleChildScrollView(
-        child: Container(
+      appBar: AppBar(title: const Text('QR Code Dashboard')),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.max,  // Riempe verticalmente
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _buildOptionCard(
-                context,
-                title: 'QR Code Scanner',
-                description: 'Scan QR codes using your camera.',
-                icon: Icons.qr_code_scanner,
-                color: Colors.purple,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ScanScreen()),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
+              // prima riga
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: _buildHalfSizeOptionCard(
+                  // 1: top‑left
+                  SizedBox(
+                    width: 160,
+                    height: 160,
+                    child: _buildOptionCard(
                       context,
-                      title: 'Dynamic QR',
                       icon: Icons.qr_code_scanner,
-                      color: Colors.grey,
+                      color: Colors.purple,
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Dynamic QR codes will be available soon!'),
-                          ),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const ScanScreen()),
                         );
                       },
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildHalfSizeOptionCard(
-                      context,
-                      title: 'Day Care',
-                      icon: Icons.elderly,
-                      color: Colors.teal,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const DayCareQrScannerPage()),
-                        );
-                      },
+                  const SizedBox(width: 16.0),
+                  // 2: top‑right +50px
+                  Padding(
+                    padding: const EdgeInsets.only(top: 50.0),
+                    child: SizedBox(
+                      width: 160,
+                      height: 160,
+                      child: _buildHalfSizeOptionCard(
+                        context,
+                        icon: Icons.qr_code_scanner,
+                        color: Colors.grey,
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text('Dynamic QR codes will be available soon!'),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              _buildOptionCard(
-                context,
-                title: 'QR Code Customizer',
-                description: 'Create a QR code with fixed content that cannot be changed after creation.',
-                icon: Icons.qr_code,
-                color: Colors.blue,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const VercelAppView()),
-                  );
-                },
+              // seconda riga
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 4: bottom‑left
+                  SizedBox(
+                    width: 160,
+                    height: 160,
+                    child: _buildOptionCard(
+                      context,
+                      icon: Icons.qr_code,
+                      color: Colors.blue,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const VercelAppView()),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16.0),
+                  // 3: bottom‑right +50px
+                  Padding(
+                    padding: const EdgeInsets.only(top: 50.0),
+                    child: SizedBox(
+                      width: 160,
+                      height: 160,
+                      child: _buildHalfSizeOptionCard(
+                        context,
+                        icon: Icons.elderly,
+                        color: Colors.teal,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const DayCareQrScannerPage()),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
+              // 5° bottone: calendario
+              Expanded(
+                child: SizedBox(
+                  width: 336,    // 160 + 16 + 160
+                  child: _buildOptionCard(
+                    context,
+                    icon: Icons.calendar_today,
+                    color: Colors.orange,
+                    onTap: () {
+                      // TODO: azione quinto bottone
+                    },
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -90,48 +128,20 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildOptionCard(
     BuildContext context, {
-    required String title,
-    required String description,
     required IconData icon,
     required Color color,
     required VoidCallback onTap,
   }) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                size: 60,
-                color: color,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          ),
+        splashColor: color.withOpacity(0.3),
+        highlightColor: color.withOpacity(0.1),
+        child: Center(
+          child: Icon(icon, size: 60, color: color),
         ),
       ),
     );
@@ -139,38 +149,20 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildHalfSizeOptionCard(
     BuildContext context, {
-    required String title,
     required IconData icon,
     required Color color,
     required VoidCallback onTap,
   }) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                size: 60,
-                color: color,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+        splashColor: color.withOpacity(0.3),
+        highlightColor: color.withOpacity(0.1),
+        child: Center(
+          child: Icon(icon, size: 60, color: color),
         ),
       ),
     );
