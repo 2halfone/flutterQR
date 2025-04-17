@@ -3,9 +3,11 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:vibration/vibration.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert'; // Import for JSON parsing
+import 'dart:async';   // ← Aggiungi questa riga
 // Import per aprire URL nel webview
 import '../scanner_bridge.dart'; // Import per funzionalità di scansione native
 import 'confirmation_screen.dart'; // Import for the confirmation screen
+import 'home_screen.dart'; // << Aggiungi in cima al file
 
 class DayCareQrScannerPage extends StatefulWidget {
   const DayCareQrScannerPage({Key? key}) : super(key: key);
@@ -20,6 +22,8 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
   bool _hasScanned = false;
   bool hasScannedOnce = false; // Flag to prevent multiple valid scans
   final ImagePicker _picker = ImagePicker();
+  Timer? _overlayTimer;                // << Nuovo
+  int _overlayCountdown = 3;           // << Nuovo
   
   // Animation controllers
   late AnimationController _borderAnimationController;
@@ -52,6 +56,7 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
 
   @override
   void dispose() {
+    _overlayTimer?.cancel();
     _borderAnimationController.dispose();
     super.dispose();
   }
@@ -122,6 +127,76 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
     }
   }
 
+  void _showUnrecognizedQROverlay() {
+    _triggerHapticFeedback();
+    _overlayCountdown = 3;
+    _overlayTimer?.cancel();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        _overlayTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+          if (_overlayCountdown > 0) {
+            setState(() => _overlayCountdown--);
+          } else {
+            t.cancel();
+            Navigator.of(context).pop();
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+              (route) => false,
+            );
+          }
+        });
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.95),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              const Icon(Icons.error_outline, size: 60, color: Colors.red),
+              const SizedBox(height: 12),
+              const Text(
+                'Day Care QR Code Not Recognized',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Please scan a valid Day Care member QR code.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Returning home in $_overlayCountdown...',
+                style: const TextStyle(fontStyle: FontStyle.italic),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  _overlayTimer?.cancel();
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const HomeScreen()),
+                    (route) => false,
+                  );
+                },
+                child: const Text('Go Home Now'),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                ),
+              ),
+            ]),
+          ),
+        );
+      },
+    );
+  }
+
   // Function to handle the scanned QR code
   void _handleScannedCode(String code) {
     // Check if we've already processed a valid QR code
@@ -136,9 +211,8 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
       
       // Check if the QR code is a valid member QR code
       if (memberData == null) {
-        // Show error dialog and return to scanning
-        _triggerHapticFeedback(); // Provide feedback
-        _showNonMemberErrorDialog();
+        _triggerHapticFeedback();
+        _showUnrecognizedQROverlay();
         return;
       }
 

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:async'; // Added for Timer
 import 'package:http/http.dart' as http;
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'home_screen.dart'; // Import for navigation to home screen
 
 class ConfirmationScreen extends StatefulWidget {
   final String name;
@@ -23,12 +25,42 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
   bool _isLoading = false;
   String? _responseMessage;
   bool _isSuccess = false;
+  Timer? _redirectTimer;
+  int _countdownValue = 3; // Countdown value
 
   // Define our tempered color scheme
   final positiveGreen = Colors.green.shade600;
   final absentRed = Colors.red.shade600;
   final titleBlack = Colors.black;
   final accentColor = Colors.blueGrey.shade600;
+
+  @override
+  void dispose() {
+    _redirectTimer?.cancel(); // Cancel timer to avoid memory leaks
+    super.dispose();
+  }
+
+  // Function to start countdown timer and redirect
+  void _startRedirectCountdown() {
+    _redirectTimer?.cancel();
+    _countdownValue = 3;
+    
+    _redirectTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_countdownValue > 0) {
+        setState(() {
+          _countdownValue--;
+        });
+      } else {
+        timer.cancel();
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            (route) => false, // Remove all previous routes
+          );
+        }
+      }
+    });
+  }
 
   // Function to send attendance status to Apps Script
   Future<void> _sendAttendanceStatus(String status) async {
@@ -74,17 +106,20 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                       _responseMessage = '✅ Presenza registrata con successo!';
                       _isSuccess = true;
                     });
+                    _startRedirectCountdown();
                   } else if (responseStatus == 'error') {
                     if (message == 'already_registered') {
                       setState(() {
                         _responseMessage = 'Hai già registrato oggi';
                         _isSuccess = false;
                       });
+                      _startRedirectCountdown();
                     } else {
                       setState(() {
                         _responseMessage = 'Errore: ${_getErrorMessage(message)}';
                         _isSuccess = false;
                       });
+                      _startRedirectCountdown();
                     }
                   }
                   return;
@@ -97,12 +132,14 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   _responseMessage = '✅ Presenza registrata con successo!';
                   _isSuccess = true;
                 });
+                _startRedirectCountdown();
                 return;
               } else if (redirectText.contains('already_registered')) {
                 setState(() {
                   _responseMessage = 'Hai già registrato oggi';
                   _isSuccess = false;
                 });
+                _startRedirectCountdown();
                 return;
               } else if (redirectText.contains('error:')) {
                 final errorMatch = RegExp(r'error:([a-z_]+)').firstMatch(redirectText);
@@ -112,6 +149,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                     _responseMessage = 'Errore: ${_getErrorMessage(errorType ?? "unknown")}';
                     _isSuccess = false;
                   });
+                  _startRedirectCountdown();
                   return;
                 }
               }
@@ -135,22 +173,26 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
           _responseMessage = '✅ Presenza registrata con successo!';
           _isSuccess = true;
         });
+        _startRedirectCountdown();
       } else if (responseText.contains('already_registered')) {
         setState(() {
           _responseMessage = 'Hai già registrato oggi';
           _isSuccess = false;
         });
+        _startRedirectCountdown();
       } else {
         setState(() {
           _responseMessage = 'Operazione completata';
           _isSuccess = true;
         });
+        _startRedirectCountdown();
       }
     } catch (e) {
       setState(() {
         _responseMessage = 'Errore di rete: $e';
         _isSuccess = false;
       });
+      _startRedirectCountdown();
     } finally {
       setState(() {
         _isLoading = false;
@@ -356,19 +398,13 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
         elevation: 0,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        // Rimuoviamo il gradiente viola/blu e lasciamo solo l'immagine di sfondo
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/backgrounds/geometric-pattern.png'),
             fit: BoxFit.cover,
           ),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.blue.shade800.withOpacity(0.6),
-              Colors.purple.shade800.withOpacity(0.6),
-            ],
-          ),
+          // Rimuoviamo completamente la proprietà gradient
         ),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -441,7 +477,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                 borderRadius: 20,
                 blur: 20,
                 alignment: Alignment.center,
-                border: 2,
+                border: 0, // Rimuove il bordo impostandolo a 0
                 linearGradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -454,8 +490,8 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white.withOpacity(0.5),
-                    Colors.white.withOpacity(0.5),
+                    Colors.transparent, // Rende il bordo completamente trasparente
+                    Colors.transparent, // Rende il bordo completamente trasparente
                   ],
                 ),
                 child: Padding(
@@ -477,18 +513,14 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                         children: [
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: _isLoading
-                                  ? null
-                                  : () {
-                                      _sendAttendanceStatus('Present');
-                                    },
+                              onPressed: _isLoading ? null : () { _sendAttendanceStatus('Present'); },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: positiveGreen,
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(10), // Stesso valore per entrambi
                                 ),
-                                elevation: 0,
+                                elevation: 2, // Stessa elevazione
                               ),
                               child: Text(
                                 'Present',
@@ -496,16 +528,9 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0.5,
-                                  color: Colors.black,
+                                  color: Colors.white, // Stesso colore di testo
                                 ),
                               ),
-                            )
-                            .animate()
-                            .slideX(
-                              begin: -0.5,
-                              end: 0,
-                              duration: 800.ms,
-                              curve: Curves.easeOutBack,
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -516,9 +541,9 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                                 backgroundColor: absentRed,
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(10), // Stesso valore per entrambi
                                 ),
-                                elevation: 0,
+                                elevation: 2, // Stessa elevazione
                               ),
                               child: Text(
                                 'Absent',
@@ -526,16 +551,9 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0.5,
-                                  color: Colors.black,
+                                  color: Colors.white, // Stesso colore di testo
                                 ),
                               ),
-                            )
-                            .animate()
-                            .slideX(
-                              begin: 0.5,
-                              end: 0,
-                              duration: 800.ms,
-                              curve: Curves.easeOutBack,
                             ),
                           ),
                         ],
@@ -574,56 +592,78 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                 ),
               
               if (_responseMessage != null)
-                GlassmorphicContainer(
-                  width: double.infinity,
-                  height: 60,
-                  borderRadius: 10,
-                  blur: 20,
-                  alignment: Alignment.center,
-                  border: 1,
-                  linearGradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      _isSuccess ? positiveGreen.withOpacity(0.1) : absentRed.withOpacity(0.1),
-                      _isSuccess ? positiveGreen.withOpacity(0.05) : absentRed.withOpacity(0.05),
-                    ],
-                  ),
-                  borderGradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      _isSuccess ? positiveGreen.withOpacity(0.5) : absentRed.withOpacity(0.5),
-                      _isSuccess ? positiveGreen.withOpacity(0.5) : absentRed.withOpacity(0.5),
-                    ],
-                  ),
-                  margin: const EdgeInsets.symmetric(vertical: 20),
-                  child: Center(
-                    child: Text(
-                      _responseMessage!.startsWith('✅')
-                          ? '✅ Attendance recorded successfully!'
-                          : _responseMessage!.contains('già registrato')
-                              ? 'You have already registered today'
-                              : _responseMessage!,
-                      style: GoogleFonts.lato(
-                        color: _responseMessage!.startsWith('✅') ? positiveGreen : absentRed,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        letterSpacing: 0.3,
+                Column(
+                  children: [
+                    GlassmorphicContainer(
+                      width: double.infinity,
+                      height: 60,
+                      borderRadius: 10,
+                      blur: 20,
+                      alignment: Alignment.center,
+                      border: 1,
+                      linearGradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _isSuccess ? positiveGreen.withOpacity(0.1) : absentRed.withOpacity(0.1),
+                          _isSuccess ? positiveGreen.withOpacity(0.05) : absentRed.withOpacity(0.05),
+                        ],
                       ),
+                      borderGradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _isSuccess ? positiveGreen.withOpacity(0.5) : absentRed.withOpacity(0.5),
+                          _isSuccess ? positiveGreen.withOpacity(0.5) : absentRed.withOpacity(0.5),
+                        ],
+                      ),
+                      margin: const EdgeInsets.symmetric(vertical: 20),
+                      child: Center(
+                        child: Text(
+                          _responseMessage!.startsWith('✅')
+                              ? '✅ Attendance recorded successfully!'
+                              : _responseMessage!.contains('già registrato')
+                                  ? 'You have already registered today'
+                                  : _responseMessage!,
+                          style: GoogleFonts.lato(
+                            color: _responseMessage!.startsWith('✅') ? positiveGreen : absentRed,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ),
+                    )
+                    .animate()
+                    .fadeIn(
+                      duration: 800.ms,
+                      curve: Curves.easeOutBack,
+                    )
+                    .scale(
+                      begin: const Offset(0.8, 0.8),
+                      end: const Offset(1.0, 1.0),
+                      duration: 800.ms,
+                      curve: Curves.easeOutBack,
                     ),
-                  ),
-                )
-                .animate()
-                .fadeIn(
-                  duration: 800.ms,
-                  curve: Curves.easeOutBack,
-                )
-                .scale(
-                  begin: const Offset(0.8, 0.8),
-                  end: const Offset(1.0, 1.0),
-                  duration: 800.ms,
-                  curve: Curves.easeOutBack,
+                    
+                    // Countdown indicator
+                    Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        'Redirecting to home in $_countdownValue...',
+                        style: GoogleFonts.lato(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
+                    .animate()
+                    .fadeIn(
+                      duration: 500.ms,
+                      curve: Curves.easeInOut,
+                    ),
+                  ],
                 ),
               
               const Spacer(),
