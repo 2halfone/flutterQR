@@ -6,10 +6,60 @@ import 'scan_screen.dart';
 import 'daycare_qr_scanner_page.dart'; // Importo la nuova pagina
 import 'calendar_page.dart';  // ← aggiunto
 import 'personal_page.dart';  // ← aggiunto per la pagina personale
+import 'package:google_fonts/google_fonts.dart';
+import 'our_services.dart'; // Add import for the new page
 
-
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _bellController;
+  late Animation<double> _bellAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Controller con durata più lunga per un movimento più naturale
+    _bellController = AnimationController(
+      duration: const Duration(milliseconds: 800), // Durata aumentata
+      vsync: this,
+    );
+
+    // Animazione più naturale con oscillazione dinamica
+    _bellAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: 0.15)
+            .chain(CurveTween(curve: Curves.easeOutSine)),
+        weight: 25.0,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.15, end: -0.15)
+            .chain(CurveTween(curve: Curves.easeInOutSine)),
+        weight: 50.0,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: -0.15, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeInSine)),
+        weight: 25.0,
+      ),
+    ]).animate(_bellController);
+
+    // Avvio dell'animazione con un leggero ritardo iniziale
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _bellController.repeat();
+    });
+  }
+
+  @override
+  void dispose() {
+    _bellController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,19 +78,7 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          'The Community Hub',
-          style: TextStyle(
-            fontFamily: 'jsMath-cmmi10',
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ),
+      // Rimozione dell'AppBar
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -53,157 +91,466 @@ class HomeScreen extends StatelessWidget {
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                child: Container(color: Colors.white.withValues(alpha: 0.2)),
+                child: Container(color: Colors.white.withOpacity(0.2)),
               ),
             ),
             SafeArea(
               child: Align(
                 alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,  // Riempe verticalmente
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // prima riga
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // 1: top‑left
-                          SizedBox(
-                            width: buttonSize,
-                            height: buttonSize,
-                            child: _buildNeumorphicButton(
-                              backgroundImage: 'assets/images/sfondo_bottone5.png',
-                              icon: Icons.qr_code_scanner,
-                              iconColor: Colors.purple,
-                              splashColor: Colors.purple.withValues(alpha: 0.3),
-                              highlightColor: Colors.purple.withValues(alpha: 0.1),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const ScanScreen()),
-                                );
-                              },
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,  // Riempe verticalmente
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Card al top della pagina
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20.0),
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.purple.withOpacity(0.7),
+                                  Colors.blue.withOpacity(0.5),
+                                ],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 50,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.2),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: AnimatedBuilder(
+                                          animation: _bellAnimation,
+                                          builder: (context, child) {
+                                            return Transform.rotate(
+                                              angle: _bellAnimation.value,
+                                              child: const Icon(
+                                                Icons.notifications_active,
+                                                color: Colors.white,
+                                                size: 30,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: const [
+                                            Text(
+                                              "Welcome to",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            Text(
+                                              "THE COMMUNITY HUB",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                                letterSpacing: 1.2,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    "Explore available services and discover upcoming events",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: TextButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (_) => const OurServicesPage()),
+                                        );
+                                      },
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Colors.white.withOpacity(0.2),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        "Learn more",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 16.0),
-                          // 2: top‑right +50px
-                          Padding(
-                            padding: EdgeInsets.only(top: buttonOffset),
-                            child: SizedBox(
+                        ),
+                        // prima riga
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // 1: top‑left
+                            SizedBox(
                               width: buttonSize,
                               height: buttonSize,
                               child: _buildNeumorphicButton(
-                                backgroundImage: 'assets/images/sfondo_bottone4.png',
-                                icon: Icons.person, // Cambiato da qr_code_scanner a person
-                                iconColor: Colors.grey,
-                                splashColor: Colors.grey.withValues(alpha: 0.3),
-                                highlightColor: Colors.grey.withValues(alpha: 0.1),
+                                backgroundImage: 'assets/images/sfondo_bottone5.png',
+                                icon: Icons.qr_code_scanner,
+                                iconColor: Colors.purple,
+                                splashColor: Colors.purple.withOpacity(0.3),
+                                highlightColor: Colors.purple.withOpacity(0.1),
                                 onTap: () {
-                                  // Cambiato da SnackBar a navigazione verso PersonalPage
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const PersonalPage(),
-                                    ),
+                                    MaterialPageRoute(builder: (_) => const ScanScreen()),
                                   );
                                 },
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      // seconda riga
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // 4: bottom‑left
-                          SizedBox(
-                            width: buttonSize,
-                            height: buttonSize,
-                            child: _buildNeumorphicButton(
-                              backgroundImage: 'assets/images/sfondo_bottone3.png',
-                              splashColor: Colors.blue.withValues(alpha: 0.3),
-                              highlightColor: Colors.blue.withValues(alpha: 0.1),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const VercelAppView()),
-                                );
-                              },
-                              child: const SizedBox.shrink(),
+                            const SizedBox(width: 16.0),
+                            // 2: top‑right +50px
+                            Padding(
+                              padding: EdgeInsets.only(top: buttonOffset),
+                              child: SizedBox(
+                                width: buttonSize,
+                                height: buttonSize,
+                                child: _buildNeumorphicButton(
+                                  backgroundImage: 'assets/images/sfondo_bottone4.png',
+                                  icon: Icons.person, // Cambiato da qr_code_scanner a person
+                                  iconColor: Colors.grey,
+                                  splashColor: Colors.grey.withOpacity(0.3),
+                                  highlightColor: Colors.grey.withOpacity(0.1),
+                                  onTap: () {
+                                    // Cambiato da SnackBar a navigazione verso PersonalPage
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const PersonalPage(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 16.0),
-                          // 3: bottom‑right +50px, Day Care with custom background
-                          Padding(
-                            padding: EdgeInsets.only(top: buttonOffset),
-                            child: SizedBox(
+                          ],
+                        ),
+                        // seconda riga
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // 4: bottom‑left
+                            SizedBox(
                               width: buttonSize,
                               height: buttonSize,
                               child: _buildNeumorphicButton(
-                                backgroundImage: 'assets/images/sfondo_bottone2.png',
-                                deeper: true,
-                                splashColor: Colors.teal.withValues(alpha: 0.3),
-                                highlightColor: Colors.teal.withValues(alpha: 0.1),
+                                backgroundImage: 'assets/images/sfondo_bottone3.png',
+                                splashColor: Colors.blue.withOpacity(0.3),
+                                highlightColor: Colors.blue.withOpacity(0.1),
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const DayCareQrScannerPage(),
-                                    ),
+                                    MaterialPageRoute(builder: (_) => const VercelAppView()),
                                   );
                                 },
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: const [
-                                    Text(
-                                      'Day Care',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
+                                child: const SizedBox.shrink(),
+                              ),
+                            ),
+                            const SizedBox(width: 16.0),
+                            // 3: bottom‑right +50px, Day Care with custom background
+                            Padding(
+                              padding: EdgeInsets.only(top: buttonOffset),
+                              child: SizedBox(
+                                width: buttonSize,
+                                height: buttonSize,
+                                child: _buildNeumorphicButton(
+                                  backgroundImage: 'assets/images/sfondo_bottone2.png',
+                                  deeper: true,
+                                  splashColor: Colors.teal.withOpacity(0.3),
+                                  highlightColor: Colors.teal.withOpacity(0.1),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const DayCareQrScannerPage(),
                                       ),
-                                    ),
-                                    SizedBox(height: 8.0),
-                                  ],
+                                    );
+                                  },
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: const [
+                                      Text(
+                                        'Day Care',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8.0),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        // spazio minimo sopra il rettangolo
+                        const SizedBox(height: 16.0),
+                        // 5° rettangolo: calendario responsivo con bottom margin fisso
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 65.0),
+                          child: FractionallySizedBox(
+                            widthFactor: 0.9,
+                            child: AspectRatio(
+                              aspectRatio: 366 / 290,
+                              child: _buildNeumorphicButton(
+                                backgroundImage: 'assets/images/sfondo_bottone.png',
+                                splashColor: Colors.orange.withOpacity(0.3),
+                                highlightColor: Colors.orange.withOpacity(0.1),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const CalendarPage()),
+                                  );
+                                },
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.calendar_today,
+                                    size: 60,
+                                    color: Colors.orange,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                      // spazio minimo sopra il rettangolo
-                      const SizedBox(height: 16.0),
-                      // 5° rettangolo: calendario responsivo con bottom margin fisso
-                      Flexible(
-                        fit: FlexFit.tight,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 65.0), // Changed from the implicit 0px to 40px
-                          child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: FractionallySizedBox(
-                              widthFactor: 0.9,
-                              child: AspectRatio(
-                                aspectRatio: 366 / 290,
-                                child: _buildNeumorphicButton(
-                                  backgroundImage: 'assets/images/sfondo_bottone.png',
-                                  splashColor: Colors.orange.withValues(alpha: 0.3),
-                                  highlightColor: Colors.orange.withValues(alpha: 0.1),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => const CalendarPage()),
-                                    );
-                                  },
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.calendar_today,
-                                      size: 60,
-                                      color: Colors.orange,
+                        ),
+                        // Our Story section
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            elevation: 5,
+                            color: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.2),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Our Journey',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.playfairDisplay(
+                                      color: Colors.white,
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8.0),
+                                  const Divider(color: Colors.white54, thickness: 1),
+                                  const SizedBox(height: 20.0),
+                                  Text(
+                                    'Four decades of community service and counting',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                      height: 1.6,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16.0),
+                                  Text(
+                                    'The Community Hub is a welcoming space for people of all ages, genders and ethnicities to come together, stay safe and active and feel included and valued.',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                      height: 1.6,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12.0),
+                                  Text(
+                                    'Set up by the Council of Asian People in 1982 and previously known as The Asian Centre, the Hub, located in the heart of Haringey borough, and its staff and Board members work diligently to fulfil its goal to support and ensure people live an active and healthy life.',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                      height: 1.6,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16.0),
+                                  Text(
+                                    '1982\nFounded with a Mission\nEstablished by the Council of Asian People to serve the diverse community of Haringey',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12.0),
+                                  Text(
+                                    '37 years on the organisation continues to offer services to the diverse community in and around Haringey, focusing particularly, through its activities events, on the physical and emotional well-being and cohesion of people.',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                      height: 1.6,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12.0),
+                                  Text(
+                                    'It also provides key support for vulnerable and marginalised residents in the area and maintains an open door, drop-in policy for anyone who is in need of advice and or support.',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                      height: 1.6,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12.0),
+                                  Text(
+                                    '"We welcome all to join our organisation and become a member. As a member you get discounts on charges for classes and trips and regularly receive news about events and activities taking place at the Hub."',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                      fontStyle: FontStyle.italic,
+                                      height: 1.6,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12.0),
+                                  Text(
+                                    'From time to time, your views are sought to help us keep providing suitable and stimulating services.',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                      height: 1.6,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16.0),
+                                  Text(
+                                    'Join Our Community',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.playfairDisplay(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12.0),
+                                  Text(
+                                    'Our Journey Through the Years',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.playfairDisplay(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12.0),
+                                  Text(
+                                    '1982\nFoundation\nEstablished as The Asian Centre by the Council of Asian People',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12.0),
+                                  Text(
+                                    '2000s\nGrowth & Expansion\nExpanded services to meet the evolving needs of our diverse community',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12.0),
+                                  Text(
+                                    'Today\nThe Community Hub\nA vibrant center supporting physical and emotional wellbeing for all',
+                                    textAlign: TextAlign.justify,
+                                    style: GoogleFonts.openSans(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20.0),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            elevation: 5,
+                            color: Colors.white.withOpacity(0.2),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(15),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const OurServicesPage()),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                                child: Center(
+                                  child: Text(
+                                    'Learn More',
+                                    style: GoogleFonts.playfairDisplay(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
@@ -211,8 +558,9 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 30.0),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -316,13 +664,13 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: deeper ? 0.15 : 0.1),
+            color: Colors.black.withOpacity(deeper ? 0.15 : 0.1),
             blurRadius: deeper ? 10 : 6,
             offset: Offset(0, deeper ? 6 : 3),
             spreadRadius: deeper ? 1 : 0,
           ),
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Colors.white.withOpacity(0.05),
             blurRadius: 2,
             offset: const Offset(-2, -2),
             spreadRadius: 0,
@@ -332,15 +680,15 @@ class HomeScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withValues(alpha: 0.15),
-            Colors.white.withValues(alpha: 0.05),
+            Colors.white.withOpacity(0.15),
+            Colors.white.withOpacity(0.05),
           ],
         ),
         image: DecorationImage(
           image: AssetImage(backgroundImage),
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
-            Colors.black.withValues(alpha: deeper ? 0.5 : 0.2),
+            Colors.black.withOpacity(deeper ? 0.5 : 0.2),
             BlendMode.srcOver,
           ),
         ),
