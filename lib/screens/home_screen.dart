@@ -96,14 +96,16 @@ class HomeScreen extends StatelessWidget {
                               height: buttonSize,
                               child: _buildNeumorphicButton(
                                 backgroundImage: 'assets/images/sfondo_bottone4.png',
-                                icon: Icons.qr_code_scanner,
+                                icon: Icons.person, // Cambiato da qr_code_scanner a person
                                 iconColor: Colors.grey,
                                 splashColor: Colors.grey.withValues(alpha: 0.3),
                                 highlightColor: Colors.grey.withValues(alpha: 0.1),
                                 onTap: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Dynamic QR codes will be available soon!'),
+                                  // Cambiato da SnackBar a navigazione verso PersonalPage
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const PersonalPage(),
                                     ),
                                   );
                                 },
