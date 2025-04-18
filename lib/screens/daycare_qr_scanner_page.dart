@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';  // Added for debugPrint
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:vibration/vibration.dart';
 import 'package:image_picker/image_picker.dart';
@@ -61,28 +62,6 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
     super.dispose();
   }
 
-  // Function to check if a string is a URL
-  bool _isUrl(String text) {
-    final RegExp urlRegExp = RegExp(
-      r'^(http|https):\/\/[^\s/$.?#].[^\s]*$',
-      caseSensitive: false,
-    );
-    return urlRegExp.hasMatch(text);
-  }
-
-  // Function to check if the QR code contains "type": "member"
-  bool _isMemberQRCode(String code) {
-    try {
-      // Try to decode the QR content as JSON
-      Map<String, dynamic> data = jsonDecode(code);
-      // Check if the data contains "type": "member"
-      return data.containsKey('type') && data['type'] == 'member';
-    } catch (e) {
-      // If parsing fails, it's not a valid JSON or doesn't have the required format
-      return false;
-    }
-  }
-
   // Extract member information from QR code
   Map<String, dynamic>? _extractMemberInfo(String code) {
     try {
@@ -95,29 +74,6 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
     } catch (e) {
       return null;
     }
-  }
-
-  // Function to show error dialog for non-member QR codes
-  void _showNonMemberErrorDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Invalid QR Code'),
-        content: const Text('Please scan a Day Care Member'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                _isScanning = true;
-                _hasScanned = false;
-              });
-            },
-            child: const Text('Continue Scanning'),
-          ),
-        ],
-      ),
-    );
   }
 
   // Function to trigger vibration feedback
@@ -154,7 +110,7 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.95),
+              color: Colors.white.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -177,6 +133,10 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
               ),
               const SizedBox(height: 16),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                ),
+                child: const Text('Go Home Now'),
                 onPressed: () {
                   _overlayTimer?.cancel();
                   Navigator.of(context).pop();
@@ -185,10 +145,6 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
                     (route) => false,
                   );
                 },
-                child: const Text('Go Home Now'),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                ),
               ),
             ]),
           ),
@@ -230,6 +186,8 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
       
       // Navigate to confirmation screen after a short delay
       Future.delayed(const Duration(milliseconds: 1000), () {
+        if (!mounted) return;
+        
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -240,11 +198,13 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
           ),
         ).then((_) {
           // Resume scanning when returning from the confirmation screen, but don't reset hasScannedOnce
-          setState(() {
-            _isScanning = true;
-            _hasScanned = false;
-            // hasScannedOnce remains true
-          });
+          if (mounted) {
+            setState(() {
+              _isScanning = true;
+              _hasScanned = false;
+              // hasScannedOnce remains true
+            });
+          }
         });
       });
     }
@@ -286,7 +246,7 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
 
       // Try using native scanning first
       try {
-        print("Selected image path: ${pickedFile.path}");
+        debugPrint("Selected image path: ${pickedFile.path}");
         final String qrContent = await ScannerBridge.scanQRFromImage(pickedFile.path);
         
         if (qrContent.isNotEmpty) {
@@ -296,7 +256,7 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
         }
       } catch (e) {
         // If native scanning fails, fall back to mobile_scanner package
-        print('Native scanning failed, falling back to mobile_scanner: $e');
+        debugPrint('Native scanning failed, falling back to mobile_scanner: $e');
       }
 
       // Create a new controller for image analysis using mobile_scanner as fallback
@@ -473,7 +433,7 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
                         height: 250,
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: Colors.green.withOpacity(0.8),
+                            color: Colors.green.withValues(alpha: 0.8),
                             width: _borderAnimation.value,
                           ),
                           borderRadius: BorderRadius.circular(12),
@@ -488,7 +448,7 @@ class _DayCareQrScannerPageState extends State<DayCareQrScannerPage> with Ticker
                   height: 250,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(12),

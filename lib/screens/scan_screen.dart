@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';  // Added for debugPrint
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:vibration/vibration.dart';
 import 'package:image_picker/image_picker.dart';
@@ -87,6 +88,8 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
       if (_isUrl(code)) {
         // Open URL in WebView
         Future.delayed(const Duration(milliseconds: 1000), () {
+          if (!mounted) return;
+          
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -94,15 +97,19 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
             ),
           ).then((_) {
             // Resume scanning when returning from the WebView
-            setState(() {
-              _isScanning = true;
-              _hasScanned = false;
-            });
+            if (mounted) {
+              setState(() {
+                _isScanning = true;
+                _hasScanned = false;
+              });
+            }
           });
         });
       } else {
         // Show dialog for non-URL content
         Future.delayed(const Duration(milliseconds: 1000), () {
+          if (!mounted) return;
+          
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -112,10 +119,12 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    setState(() {
-                      _isScanning = true;
-                      _hasScanned = false;
-                    });
+                    if (mounted) {
+                      setState(() {
+                        _isScanning = true;
+                        _hasScanned = false;
+                      });
+                    }
                   },
                   child: const Text('Continue Scanning'),
                 ),
@@ -159,7 +168,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
 
       // Try using native scanning first
       try {
-        print("Selected image path: ${pickedFile.path}");
+        debugPrint("Selected image path: ${pickedFile.path}");
         final String qrContent = await ScannerBridge.scanQRFromImage(pickedFile.path);
         
         if (qrContent.isNotEmpty) {
@@ -169,7 +178,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
         }
       } catch (e) {
         // If native scanning fails, fall back to mobile_scanner package
-        print('Native scanning failed, falling back to mobile_scanner: $e');
+        debugPrint('Native scanning failed, falling back to mobile_scanner: $e');
       }
 
       // Create a new controller for image analysis using mobile_scanner as fallback
@@ -319,7 +328,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                         height: 250,
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: Colors.green.withOpacity(0.8),
+                            color: Colors.green.withValues(alpha: 0.8),
                             width: _borderAnimation.value,
                           ),
                           borderRadius: BorderRadius.circular(12),
@@ -334,7 +343,7 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                   height: 250,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(12),

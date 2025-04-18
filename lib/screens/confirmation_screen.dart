@@ -124,7 +124,10 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   }
                   return;
                 }
-              } catch (e) {}
+              } catch (e) {
+                // Unable to parse JSON response, continuing with text-based parsing
+                debugPrint('Error parsing JSON from redirect response: $e');
+              }
               
               final redirectText = redirectResponse.body.toLowerCase();
               if (redirectText.contains('success')) {
@@ -154,7 +157,10 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                 }
               }
             }
-          } catch (e) {}
+          } catch (e) {
+            // Failed to handle redirect URL
+            debugPrint('Error handling redirect URL: $e');
+          }
         }
       }
       
@@ -164,7 +170,10 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
         if (jsonData is Map && jsonData.containsKey('status')) {
           // ... codice esistente per interpretare JSON ...
         }
-      } catch (e) {}
+      } catch (e) {
+        // Failed to parse JSON from main response
+        debugPrint('Error parsing JSON from main response: $e');
+      }
       
       final responseText = response.body.toLowerCase();
       
@@ -482,8 +491,8 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white.withOpacity(0.1),
-                    Colors.white.withOpacity(0.05),
+                    Colors.white.withValues(alpha: 0.1),
+                    Colors.white.withValues(alpha: 0.05),
                   ],
                 ),
                 borderGradient: LinearGradient(
@@ -574,15 +583,15 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
               if (_isLoading)
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 20),
-                  child: Column(
+                  child: const Column(
                     children: [
-                      const CircularProgressIndicator(
+                      CircularProgressIndicator(
                         color: Colors.white,
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10),
                       Text(
                         'Recording attendance...',
-                        style: GoogleFonts.lato(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                         ),
@@ -605,16 +614,16 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          _isSuccess ? positiveGreen.withOpacity(0.1) : absentRed.withOpacity(0.1),
-                          _isSuccess ? positiveGreen.withOpacity(0.05) : absentRed.withOpacity(0.05),
+                          _isSuccess ? positiveGreen.withValues(alpha: 0.1) : absentRed.withValues(alpha: 0.1),
+                          _isSuccess ? positiveGreen.withValues(alpha: 0.05) : absentRed.withValues(alpha: 0.05),
                         ],
                       ),
                       borderGradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          _isSuccess ? positiveGreen.withOpacity(0.5) : absentRed.withOpacity(0.5),
-                          _isSuccess ? positiveGreen.withOpacity(0.5) : absentRed.withOpacity(0.5),
+                          _isSuccess ? positiveGreen.withValues(alpha: 0.5) : absentRed.withValues(alpha: 0.5),
+                          _isSuccess ? positiveGreen.withValues(alpha: 0.5) : absentRed.withValues(alpha: 0.5),
                         ],
                       ),
                       margin: const EdgeInsets.symmetric(vertical: 20),
@@ -679,16 +688,16 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white.withOpacity(0.1),
-                    Colors.white.withOpacity(0.05),
+                    Colors.white.withValues(alpha: 0.1),
+                    Colors.white.withValues(alpha: 0.05),
                   ],
                 ),
                 borderGradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white.withOpacity(0.5),
-                    Colors.white.withOpacity(0.5),
+                    Colors.white.withValues(alpha: 0.5),
+                    Colors.white.withValues(alpha: 0.5),
                   ],
                 ),
                 child: Material(

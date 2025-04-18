@@ -25,10 +25,14 @@ dependencies:
   flutter_animate: ^4.2.0
   responsive_framework: ^0.2.0
   table_calendar: ^3.0.8   # ← aggiunto
+  flutter_neumorphic:
+    git:
+      url: https://github.com/Idean/Flutter-Neumorphic
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^2.0.0  # Added for linting rules
 
 flutter:
   uses-material-design: true

@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';  // Import for debugPrint
 import 'package:image_picker/image_picker.dart';
 import 'dart:io' show File;
 
@@ -27,8 +28,8 @@ class ScannerBridge {
         );
       }
 
-      print('File exists, sending to Kotlin: $imagePath');
-      print('File size: ${file.lengthSync()} bytes');
+      debugPrint('File exists, sending to Kotlin: $imagePath');
+      debugPrint('File size: ${file.lengthSync()} bytes');
       
       final String? result = await _channel.invokeMethod('scanFromImage', {
         'imagePath': imagePath,
@@ -64,17 +65,17 @@ class ScannerBridge {
       
       if (pickedFile != null) {
         final String filePath = pickedFile.path;
-        print('Selected image path: $filePath');
+        debugPrint('Selected image path: $filePath');
         
         // Check if the file exists
         final bool fileExists = File(filePath).existsSync();
-        print('File exists: $fileExists');
+        debugPrint('File exists: $fileExists');
         
         // Print path details relevant for Kotlin
-        print('Path for Kotlin usage:');
-        print('- Raw path: $filePath');
-        print('- Path with escaped backslashes: ${filePath.replaceAll(r'\', r'\\')}');
-        print('- URI format: file://${filePath.replaceAll(r'\', '/')}');
+        debugPrint('Path for Kotlin usage:');
+        debugPrint('- Raw path: $filePath');
+        debugPrint('- Path with escaped backslashes: ${filePath.replaceAll(r'\', r'\\')}');
+        debugPrint('- URI format: file://${filePath.replaceAll(r'\', '/')}');
         
         try {
           // Try to invoke a method on the Kotlin side to validate the path
@@ -83,18 +84,18 @@ class ScannerBridge {
             'isValidFilePath', 
             {'path': filePath}
           );
-          print('Path validation from Kotlin: ${isValid ?? 'Not implemented'}');
+          debugPrint('Path validation from Kotlin: ${isValid ?? 'Not implemented'}');
         } catch (e) {
-          print('Path validation method not implemented in Kotlin: $e');
+          debugPrint('Path validation method not implemented in Kotlin: $e');
         }
         
         return filePath;
       } else {
-        print('No image selected');
+        debugPrint('No image selected');
         return null;
       }
     } catch (e) {
-      print('Error picking image: $e');
+      debugPrint('Error picking image: $e');
       return null;
     }
   }

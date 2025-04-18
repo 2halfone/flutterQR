@@ -5,6 +5,7 @@ import 'vercel_app_view.dart';
 import 'scan_screen.dart';
 import 'daycare_qr_scanner_page.dart'; // Importo la nuova pagina
 import 'calendar_page.dart';  // ← aggiunto
+import 'personal_page.dart';  // ← aggiunto per la pagina personale
 
 
 class HomeScreen extends StatelessWidget {
@@ -52,7 +53,7 @@ class HomeScreen extends StatelessWidget {
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                child: Container(color: Colors.white.withOpacity(0.2)),
+                child: Container(color: Colors.white.withValues(alpha: 0.2)),
               ),
             ),
             SafeArea(
@@ -72,42 +73,18 @@ class HomeScreen extends StatelessWidget {
                           SizedBox(
                             width: buttonSize,
                             height: buttonSize,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 6,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
-                                image: DecorationImage(
-                                  image: AssetImage('assets/images/sfondo_bottone5.png'),
-                                  fit: BoxFit.cover,
-                                  colorFilter: ColorFilter.mode(
-                                    Colors.black.withOpacity(0.2),
-                                    BlendMode.srcOver,
-                                  ),
-                                ),
-                              ),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => const ScanScreen()),
-                                    );
-                                  },
-                                  borderRadius: BorderRadius.circular(12),
-                                  splashColor: Colors.purple.withOpacity(0.3),
-                                  highlightColor: Colors.purple.withOpacity(0.1),
-                                  child: Center(
-                                    child: Icon(Icons.qr_code_scanner, size: 60, color: Colors.purple),
-                                  ),
-                                ),
-                              ),
+                            child: _buildNeumorphicButton(
+                              backgroundImage: 'assets/images/sfondo_bottone5.png',
+                              icon: Icons.qr_code_scanner,
+                              iconColor: Colors.purple,
+                              splashColor: Colors.purple.withValues(alpha: 0.3),
+                              highlightColor: Colors.purple.withValues(alpha: 0.1),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const ScanScreen()),
+                                );
+                              },
                             ),
                           ),
                           const SizedBox(width: 16.0),
@@ -117,43 +94,19 @@ class HomeScreen extends StatelessWidget {
                             child: SizedBox(
                               width: buttonSize,
                               height: buttonSize,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 6,
-                                      offset: Offset(0, 3),
+                              child: _buildNeumorphicButton(
+                                backgroundImage: 'assets/images/sfondo_bottone4.png',
+                                icon: Icons.qr_code_scanner,
+                                iconColor: Colors.grey,
+                                splashColor: Colors.grey.withValues(alpha: 0.3),
+                                highlightColor: Colors.grey.withValues(alpha: 0.1),
+                                onTap: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Dynamic QR codes will be available soon!'),
                                     ),
-                                  ],
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/images/sfondo_bottone4.png'),
-                                    fit: BoxFit.cover,
-                                    colorFilter: ColorFilter.mode(
-                                      Colors.black.withOpacity(0.2),
-                                      BlendMode.srcOver,
-                                    ),
-                                  ),
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Dynamic QR codes will be available soon!'),
-                                        ),
-                                      );
-                                    },
-                                    borderRadius: BorderRadius.circular(12),
-                                    splashColor: Colors.grey.withOpacity(0.3),
-                                    highlightColor: Colors.grey.withOpacity(0.1),
-                                    child: Center(
-                                      child: Icon(Icons.qr_code_scanner, size: 60, color: Colors.grey),
-                                    ),
-                                  ),
-                                ),
+                                  );
+                                },
                               ),
                             ),
                           ),
@@ -167,40 +120,17 @@ class HomeScreen extends StatelessWidget {
                           SizedBox(
                             width: buttonSize,
                             height: buttonSize,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 6,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
-                                image: DecorationImage(
-                                  image: AssetImage('assets/images/sfondo_bottone3.png'),
-                                  fit: BoxFit.cover,
-                                  colorFilter: ColorFilter.mode(
-                                    Colors.black.withOpacity(0.2),
-                                    BlendMode.srcOver,
-                                  ),
-                                ),
-                              ),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => const VercelAppView()),
-                                    );
-                                  },
-                                  borderRadius: BorderRadius.circular(12),
-                                  splashColor: Colors.blue.withOpacity(0.3),
-                                  highlightColor: Colors.blue.withOpacity(0.1),
-                                  child: SizedBox.shrink(),
-                                ),
-                              ),
+                            child: _buildNeumorphicButton(
+                              backgroundImage: 'assets/images/sfondo_bottone3.png',
+                              splashColor: Colors.blue.withValues(alpha: 0.3),
+                              highlightColor: Colors.blue.withValues(alpha: 0.1),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const VercelAppView()),
+                                );
+                              },
+                              child: const SizedBox.shrink(),
                             ),
                           ),
                           const SizedBox(width: 16.0),
@@ -210,57 +140,34 @@ class HomeScreen extends StatelessWidget {
                             child: SizedBox(
                               width: buttonSize,
                               height: buttonSize,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-  BoxShadow(
-    color: Colors.black.withOpacity(0.15), // un po’ più intensa
-    blurRadius: 10, // più morbida
-    offset: Offset(0, 6), // un po’ più “sollevata”
-  ),
-],
-
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/images/sfondo_bottone2.png'),
-                                    fit: BoxFit.cover,
-                                    colorFilter: ColorFilter.mode(
-                                      Colors.black.withOpacity(0.5),
-                                      BlendMode.srcOver,
+                              child: _buildNeumorphicButton(
+                                backgroundImage: 'assets/images/sfondo_bottone2.png',
+                                deeper: true,
+                                splashColor: Colors.teal.withValues(alpha: 0.3),
+                                highlightColor: Colors.teal.withValues(alpha: 0.1),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const DayCareQrScannerPage(),
                                     ),
-                                  ),
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => const DayCareQrScannerPage(),
-                                        ),
-                                      );
-                                    },
-                                    borderRadius: BorderRadius.circular(12),
-                                    splashColor: Colors.teal.withOpacity(0.3),
-                                    highlightColor: Colors.teal.withOpacity(0.1),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: const [
-                                        Text(
-                                          'Day Care',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(height: 8.0),
-                                      ],
+                                  );
+                                },
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: const [
+                                    Text(
+                                      'Day Care',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
+                                    SizedBox(height: 8.0),
+                                  ],
                                 ),
                               ),
                             ),
@@ -272,42 +179,29 @@ class HomeScreen extends StatelessWidget {
                       // 5° rettangolo: calendario responsivo con bottom margin fisso
                       Flexible(
                         fit: FlexFit.tight,
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: FractionallySizedBox(
-                            widthFactor: 0.9,
-                            child: AspectRatio(
-                              aspectRatio: 366 / 290,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/images/sfondo_bottone.png'),
-                                    fit: BoxFit.cover,
-                                    colorFilter: ColorFilter.mode(
-                                      Colors.black.withOpacity(0.5),
-                                      BlendMode.srcOver,
-                                    ),
-                                  ),
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (_) => const CalendarPage()),
-                                      );
-                                    },
-                                    borderRadius: BorderRadius.circular(12),
-                                    splashColor: Colors.orange.withOpacity(0.3),
-                                    highlightColor: Colors.orange.withOpacity(0.1),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.calendar_today,
-                                        size: 60,
-                                        color: Colors.orange,
-                                      ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 65.0), // Changed from the implicit 0px to 40px
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: FractionallySizedBox(
+                              widthFactor: 0.9,
+                              child: AspectRatio(
+                                aspectRatio: 366 / 290,
+                                child: _buildNeumorphicButton(
+                                  backgroundImage: 'assets/images/sfondo_bottone.png',
+                                  splashColor: Colors.orange.withValues(alpha: 0.3),
+                                  highlightColor: Colors.orange.withValues(alpha: 0.1),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (_) => const CalendarPage()),
+                                    );
+                                  },
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.calendar_today,
+                                      size: 60,
+                                      color: Colors.orange,
                                     ),
                                   ),
                                 ),
@@ -321,76 +215,176 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
+                ),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                  child: Container(
+                    height: 60,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    color: Colors.transparent,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 70,
+                          child: _buildNavBarItem(
+                            icon: Icons.home_rounded,
+                            label: "Home",
+                            color: Colors.purple,
+                            isActive: true,
+                            onTap: () {},
+                          ),
+                        ),
+                        SizedBox(
+                          width: 70,
+                          child: _buildNavBarItem(
+                            icon: Icons.qr_code_scanner_rounded,
+                            label: "Scan",
+                            color: Colors.teal,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const ScanScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          width: 70,
+                          child: _buildNavBarItem(
+                            icon: Icons.calendar_today_rounded,
+                            label: "Calendar",
+                            color: Colors.orange,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const CalendarPage()),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          width: 70,
+                          child: _buildNavBarItem(
+                            icon: Icons.admin_panel_settings_rounded,
+                            label: "Admin",
+                            color: Colors.blue,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const PersonalPage()),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildOptionCard(
-    BuildContext context, {
-    required IconData icon,
-    required Color color,
+  Widget _buildNeumorphicButton({
+    required String backgroundImage,
+    IconData? icon,
+    Color iconColor = Colors.white,
+    Color splashColor = Colors.white,
+    Color highlightColor = Colors.white,
     required VoidCallback onTap,
+    Widget? child,
+    bool deeper = false,
   }) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 6,
-            offset: Offset(0, 3),
+            color: Colors.black.withValues(alpha: deeper ? 0.15 : 0.1),
+            blurRadius: deeper ? 10 : 6,
+            offset: Offset(0, deeper ? 6 : 3),
+            spreadRadius: deeper ? 1 : 0,
+          ),
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.05),
+            blurRadius: 2,
+            offset: const Offset(-2, -2),
+            spreadRadius: 0,
           ),
         ],
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withValues(alpha: 0.15),
+            Colors.white.withValues(alpha: 0.05),
+          ],
+        ),
+        image: DecorationImage(
+          image: AssetImage(backgroundImage),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            Colors.black.withValues(alpha: deeper ? 0.5 : 0.2),
+            BlendMode.srcOver,
+          ),
+        ),
       ),
-      child: Card(
-        elevation: 0,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Material(
+        color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-          splashColor: color.withOpacity(0.3),
-          highlightColor: color.withOpacity(0.1),
-          child: Center(
-            child: Icon(icon, size: 60, color: color),
-          ),
+          splashColor: splashColor,
+          highlightColor: highlightColor,
+          child: child ?? (icon != null ? Center(
+            child: Icon(icon, size: 60, color: iconColor),
+          ) : null),
         ),
       ),
     );
   }
 
-  Widget _buildHalfSizeOptionCard(
-    BuildContext context, {
+  Widget _buildNavBarItem({
     required IconData icon,
+    required String label,
     required Color color,
     required VoidCallback onTap,
+    bool isActive = false,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 6,
-            offset: Offset(0, 3),
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: isActive ? 30 : 24,
+            color: Colors.white, // Cambiato in bianco per tutte le icone
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: isActive ? 14 : 12,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              color: Colors.white, // Cambiato in bianco per tutto il testo
+            ),
           ),
         ],
-      ),
-      child: Card(
-        elevation: 0,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          splashColor: color.withOpacity(0.3),
-          highlightColor: color.withOpacity(0.1),
-          child: Center(
-            child: Icon(icon, size: 60, color: color),
-          ),
-        ),
       ),
     );
   }
