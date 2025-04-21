@@ -9,6 +9,8 @@ dependencies:
   flutter:
     sdk: flutter
   qr_flutter: ^4.0.0
+  flip_card: ^0.7.0
+  m3_carousel: ^2.0.1
   provider: ^6.0.0
   image_picker: ^1.0.4
   http: ^1.3.0  # Updated to be compatible with google_fonts 6.1.0
@@ -28,6 +30,8 @@ dependencies:
   flutter_neumorphic:
     git:
       url: https://github.com/Idean/Flutter-Neumorphic
+  fan_carousel_image_slider: any
+  share_plus: ^10.1.4
 
 dev_dependencies:
   flutter_test:
@@ -42,5 +46,14 @@ flutter:
     - assets/images/sfondo_bottone3.png
     - assets/images/sfondo_bottone4.png
     - assets/images/sfondo_bottone5.png
-    - assets/backgrounds/  # include all background patterns
+    - assets/images/home-van-300x196-1.png
+    - assets/images/hands-2906458_640.jpg
+    - assets/images/meeting-room.jpg
+    - assets/images/daycar.png
+    - assets/images/personal.png
+    # - assets/images/avatar.png    # ← rimosso/commentato
+    - assets/backgrounds/
+    - assets/backgrounds/art-deco-pattern.png
+    - assets/backgrounds/abstract-pattern.png
+    - assets/backgrounds/west-pattern.png
 

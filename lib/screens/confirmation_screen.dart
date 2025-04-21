@@ -495,7 +495,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                     Colors.white.withValues(alpha: 0.05),
                   ],
                 ),
-                borderGradient: LinearGradient(
+                borderGradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [

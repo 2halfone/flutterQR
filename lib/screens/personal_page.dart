@@ -26,6 +26,9 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final contentWidth = screenWidth > 850 ? 800.0 : screenWidth;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -42,7 +45,6 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
       ),
       body: Stack(
         children: [
-          // Container principale con sfondo
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -51,105 +53,111 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
               ),
             ),
             child: SafeArea(
-              child: Column(
-                children: [
-                  // Profilo utente in alto
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 40,
-                          backgroundImage: AssetImage('assets/images/avatar.png'),
+              child: Center(
+                child: Container(
+                  width: contentWidth,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+                  child: Column(
+                    children: [
+                      // Profilo utente in alto
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            const CircleAvatar(
+                              radius: 40,
+                              backgroundImage: AssetImage('assets/images/avatar.png'),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'User Name',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'user@example.com',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white70,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                      ),
+                      
+                      // Tab Bar per le diverse sezioni
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: TabBar(
+                          controller: _tabController,
+                          indicatorColor: Colors.deepPurpleAccent,
+                          indicatorWeight: 3,
+                          labelColor: Colors.white,
+                          unselectedLabelColor: Colors.white70,
+                          tabs: const [
+                            Tab(
+                              icon: Icon(Icons.event),
+                              text: 'Events',
+                            ),
+                            Tab(
+                              icon: Icon(Icons.photo_library),
+                              text: 'Photos',
+                            ),
+                            Tab(
+                              icon: Icon(Icons.payment),
+                              text: 'Payments',
+                            ),
+                            Tab(
+                              icon: Icon(Icons.note),
+                              text: 'Notes',
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // Contenuto dei Tab
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: TabBarView(
+                            controller: _tabController,
                             children: [
-                              Text(
-                                'User Name',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                'user@example.com',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white70,
-                                  fontSize: 16,
-                                ),
-                              ),
+                              // Tab Events
+                              _buildEventsTab(),
+                              
+                              // Tab Photos
+                              _buildPhotosTab(),
+                              
+                              // Tab Payments
+                              _buildPaymentsTab(),
+                              
+                              // Tab Notes
+                              _buildNotesTab(),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  
-                  // Tab Bar per le diverse sezioni
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: TabBar(
-                      controller: _tabController,
-                      indicatorColor: Colors.deepPurpleAccent,
-                      indicatorWeight: 3,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white70,
-                      tabs: const [
-                        Tab(
-                          icon: Icon(Icons.event),
-                          text: 'Events',
-                        ),
-                        Tab(
-                          icon: Icon(Icons.photo_library),
-                          text: 'Photos',
-                        ),
-                        Tab(
-                          icon: Icon(Icons.payment),
-                          text: 'Payments',
-                        ),
-                        Tab(
-                          icon: Icon(Icons.note),
-                          text: 'Notes',
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  // Contenuto dei Tab
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          // Tab Events
-                          _buildEventsTab(),
-                          
-                          // Tab Photos
-                          _buildPhotosTab(),
-                          
-                          // Tab Payments
-                          _buildPaymentsTab(),
-                          
-                          // Tab Notes
-                          _buildNotesTab(),
-                        ],
-                      ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -237,7 +245,7 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
     ];
     
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
       child: ListView.builder(
         itemCount: events.length,
         itemBuilder: (context, index) {
@@ -315,7 +323,7 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
   Widget _buildPhotosTab() {
     // Sample image grid
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,

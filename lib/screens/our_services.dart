@@ -1,95 +1,114 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:fan_carousel_image_slider/fan_carousel_image_slider.dart';
 
 class OurServicesPage extends StatelessWidget {
   const OurServicesPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final contentWidth = screenWidth > 850 ? 800.0 : screenWidth * 0.9;
+
     final services = [
       {
         'icon': Icons.design_services,
-        'title': 'Consulting',
-        'description': 'Expert advice to grow your business.'
+        'title': 'Day Care',
+        'description': 'Haringey Community Hub Day Care Service was set up on the 17th October 1997 for older people with long-term illnesses and those with a disability.'
       },
       {
         'icon': Icons.build,
-        'title': 'Development',
-        'description': 'Custom solutions built for you.'
+        'title': 'Van Hire',
+        'description': 'The van has a lift, restraint points for securely holding a wheelchair in place and seat belts for passengers in wheelchairs'
       },
       {
         'icon': Icons.support,
-        'title': 'Support',
-        'description': '24/7 help whenever you need it.'
+        'title': 'Room Hire',
+        'description': 'Our versatile spaces can accommodate groups of various sizes, from intimate gatherings of 5-10 people to larger events of up to 50 attendees.'
       },
     ];
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Text(
-                'Our Services',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/backgrounds/frog-pattern.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 40.0),
+            child: Center(
+              child: Container(
+                width: contentWidth,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Our Services',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // carousel
+                      FanCarouselImageSlider.sliderType2(
+                        imagesLink: const [
+                          'assets/images/hands-2906458_640.jpg',
+                          'assets/images/home-van-300x196-1.png',
+                          'assets/images/meeting-room.jpg',
+                        ],
+                        isAssets: true,
+                        autoPlay: true,
+                        sliderHeight: MediaQuery.of(context).size.height * 0.4,
+                        imageRadius: 15,
+                        slideViewportFraction: 0.9,
+                        sliderDuration: const Duration(milliseconds: 300),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // services list
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        itemCount: services.length,
+                        itemBuilder: (context, i) {
+                          final svc = services[i];
+                          return Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 3,
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            child: ListTile(
+                              leading: Icon(
+                                svc['icon'] as IconData,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              title: Text(
+                                svc['title'] as String,
+                                style: GoogleFonts.playfairDisplay(),
+                              ),
+                              subtitle: Text(
+                                svc['description'] as String,
+                                style: GoogleFonts.openSans(),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: PageView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: services.length,
-                itemBuilder: (context, index) {
-                  final service = services[index];
-                  return Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              service['icon'] as IconData,
-                              size: 60,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            const SizedBox(height: 20),
-                            Text(
-                              service['title'] as String,
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.playfairDisplay(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              service['description'] as String,
-                              textAlign: TextAlign.justify,
-                              style: GoogleFonts.openSans(
-                                fontSize: 16,
-                                height: 1.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

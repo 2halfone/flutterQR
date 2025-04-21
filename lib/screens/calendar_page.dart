@@ -23,6 +23,9 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final contentWidth = screenWidth > 850 ? 800.0 : screenWidth * 0.9;
+
     return Scaffold(
       extendBodyBehindAppBar: true, // Aggiungi questa linea per estendere l'immagine di sfondo dietro l'AppBar
       appBar: AppBar(
@@ -54,104 +57,104 @@ class _CalendarPageState extends State<CalendarPage> {
                 right: 16.0,
                 bottom: 70.0,  // Aumentato per fare spazio alla barra inferiore
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    TableCalendar(
-                      firstDay: DateTime.utc(2020, 1, 1),
-                      lastDay: DateTime.utc(2030, 12, 31),
-                      focusedDay: _focusedDay,
-                      selectedDayPredicate: (day) {
-                        return isSameDay(_selectedDay, day);
-                      },
-                      onDaySelected: (selectedDay, focusedDay) {
-                        setState(() {
-                          _selectedDay = selectedDay;
-                          _focusedDay = focusedDay;
-                        });
-                      },
-                      calendarFormat: _calendarFormat,
-                      onFormatChanged: (format) {
-                        setState(() {
-                          _calendarFormat = format;
-                        });
-                      },
-                      availableCalendarFormats: const {
-                        CalendarFormat.month: 'Month',
-                        CalendarFormat.twoWeeks: '2 Weeks',
-                        CalendarFormat.week: 'Week',
-                      },
-                      headerStyle: HeaderStyle(
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 103, 96, 116),
-                          borderRadius: BorderRadius.circular(8),
+              child: Center(
+                child: Container(
+                  width: contentWidth,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      TableCalendar(
+                        firstDay: DateTime.utc(2020, 1, 1),
+                        lastDay: DateTime.utc(2030, 12, 31),
+                        focusedDay: _focusedDay,
+                        selectedDayPredicate: (day) {
+                          return isSameDay(_selectedDay, day);
+                        },
+                        onDaySelected: (selectedDay, focusedDay) {
+                          setState(() {
+                            _selectedDay = selectedDay;
+                            _focusedDay = focusedDay;
+                          });
+                        },
+                        calendarFormat: _calendarFormat,
+                        onFormatChanged: (format) {
+                          setState(() => _calendarFormat = format);
+                        },
+                        availableCalendarFormats: const {
+                          CalendarFormat.week: 'Week',
+                          CalendarFormat.month: 'Month',
+                        },
+                        headerStyle: HeaderStyle(
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 103, 96, 116),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          titleCentered: true,
+                          titleTextStyle: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          leftChevronIcon: const Icon(Icons.chevron_left, color: Colors.white),
+                          rightChevronIcon: const Icon(Icons.chevron_right, color: Colors.white),
+                          formatButtonVisible: true,
+                          formatButtonDecoration: BoxDecoration(
+                            color: Colors.deepPurple.shade100,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          formatButtonTextStyle: GoogleFonts.poppins(color: Colors.deepPurple.shade800, fontSize: 12),
+                          headerMargin: const EdgeInsets.only(bottom: 8),
                         ),
-                        titleCentered: true,
-                        titleTextStyle: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                        calendarStyle: CalendarStyle(
+                          cellMargin: const EdgeInsets.all(4),
+                          defaultTextStyle: GoogleFonts.poppins(color: const Color.fromARGB(255, 0, 0, 0)),
+                          weekendTextStyle: GoogleFonts.poppins(color: Colors.redAccent),
+                          todayTextStyle: GoogleFonts.poppins(color: Colors.deepPurple),
+                          selectedTextStyle: GoogleFonts.poppins(color: Colors.white),
+                          outsideDaysVisible: false,
+                          selectedDecoration: const BoxDecoration(
+                            color: Colors.deepPurpleAccent,
+                            shape: BoxShape.circle,
+                          ),
+                          todayDecoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.3),
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                        leftChevronIcon: const Icon(Icons.chevron_left, color: Colors.white),
-                        rightChevronIcon: const Icon(Icons.chevron_right, color: Colors.white),
-                        formatButtonVisible: true,
-                        formatButtonDecoration: BoxDecoration(
-                          color: Colors.deepPurple.shade100,
-                          borderRadius: BorderRadius.circular(6),
+                        daysOfWeekStyle: DaysOfWeekStyle(
+                          weekdayStyle: GoogleFonts.poppins(color: Colors.white),
+                          weekendStyle: GoogleFonts.poppins(color: Colors.redAccent),
                         ),
-                        formatButtonTextStyle: GoogleFonts.poppins(color: Colors.deepPurple.shade800, fontSize: 12),
-                        headerMargin: const EdgeInsets.only(bottom: 8),
                       ),
-                      calendarStyle: CalendarStyle(
-                        cellMargin: const EdgeInsets.all(4),
-                        defaultTextStyle: GoogleFonts.poppins(color: const Color.fromARGB(255, 0, 0, 0)),
-                        weekendTextStyle: GoogleFonts.poppins(color: Colors.redAccent),
-                        todayTextStyle: GoogleFonts.poppins(color: Colors.deepPurple),
-                        selectedTextStyle: GoogleFonts.poppins(color: Colors.white),
-                        outsideDaysVisible: false,
-                        selectedDecoration: const BoxDecoration(
-                          color: Colors.deepPurpleAccent,
-                          shape: BoxShape.circle,
-                        ),
-                        todayDecoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      daysOfWeekStyle: DaysOfWeekStyle(
-                        weekdayStyle: GoogleFonts.poppins(color: Colors.white),
-                        weekendStyle: GoogleFonts.poppins(color: Colors.redAccent),
-                      ),
-                    ),
-                    
-                    // Box che occupa lo spazio rimanente sotto il calendario
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 16.0),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 103, 96, 116).withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(
-                          child: Text(
-                            _selectedDay != null 
-                                ? 'Selected: ${_selectedDay!.day}/${_selectedDay!.month}/${_selectedDay!.year}'
-                                : 'Select a date',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                      
+                      // Box che occupa lo spazio rimanente sotto il calendario
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 16.0),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 103, 96, 116).withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Text(
+                              _selectedDay != null 
+                                  ? 'Selected: ${_selectedDay!.day}/${_selectedDay!.month}/${_selectedDay!.year}'
+                                  : 'Select a date',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
