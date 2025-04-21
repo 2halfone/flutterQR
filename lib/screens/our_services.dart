@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fan_carousel_image_slider/fan_carousel_image_slider.dart';
+import 'home_screen.dart';
 
 class OurServicesPage extends StatelessWidget {
   const OurServicesPage({Key? key}) : super(key: key);
@@ -29,20 +30,25 @@ class OurServicesPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/backgrounds/frog-pattern.png'),
-            fit: BoxFit.cover,
+      body: Stack(
+        children: [
+          // 1) Sfondo sotto a tutto
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/backgrounds/frog-pattern.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 40.0),
-            child: Center(
-              child: Container(
-                width: contentWidth,
-                child: Padding(
+
+          // 2) Contenuto scrollabile
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 40.0),
+              child: Center(
+                child: Container(
+                  width: contentWidth,
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     children: [
@@ -109,7 +115,21 @@ class OurServicesPage extends StatelessWidget {
               ),
             ),
           ),
-        ),
+
+          // 3) Back button **ultimi** in lista = in primo piano
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 0, 0, 0)),
+                onPressed: () => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

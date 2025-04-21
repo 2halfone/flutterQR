@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
+import 'package:share_plus/share_plus.dart'; // assicurati sia presente in cima al file
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({Key? key}) : super(key: key);
@@ -32,7 +33,9 @@ class _CalendarPageState extends State<CalendarPage> {
         title: const Text(
           'Calendar',
           style: TextStyle(
-            color: Colors.white, // Cambia a bianco per visibilità sullo sfondo scuro
+            fontSize: 36,              // font size aumentato
+            letterSpacing: 3.0,         // spaziatura tra le lettere
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -185,16 +188,11 @@ class _CalendarPageState extends State<CalendarPage> {
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy, color: Colors.white),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.paste, color: Colors.white),
-                        onPressed: () {},
-                      ),
-                      IconButton(
                         icon: const Icon(Icons.share, color: Colors.white),
-                        onPressed: () {},
+                        onPressed: () {
+                          // Apre il menu di condivisione nativo
+                          Share.share('Check out my event calendar!');
+                        },
                       ),
                     ],
                   ),

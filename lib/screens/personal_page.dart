@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
+import 'package:share_plus/share_plus.dart';
 
 class PersonalPage extends StatefulWidget {
   const PersonalPage({Key? key}) : super(key: key);
@@ -177,27 +178,33 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
                 child: Container(
                   height: 60,
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  // Rimuovo qualsiasi colore di sfondo
-                  color: Colors.transparent,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.home, color: Colors.white),
+                        icon: const Icon(Icons.camera_alt, color: Colors.white),
                         onPressed: () {
-                          Navigator.pop(context); // Torna alla home
+                          // Implementa apertura fotocamera, es:
+                          // Navigator.push(context, MaterialPageRoute(builder: (_) => const CameraPage()));
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.settings, color: Colors.white),
+                        icon: const Icon(Icons.copy, color: Colors.white),
                         onPressed: () {
-                          // Impostazioni
+                          // TODO: implement copy to clipboard
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.logout, color: Colors.white),
+                        icon: const Icon(Icons.paste, color: Colors.white),
                         onPressed: () {
-                          // Logout
+                          // TODO: implement paste from clipboard
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.share, color: Colors.white),
+                        onPressed: () {
+                          // apre il menu di condivisione nativo
+                          Share.share('Check out my personal space!');
                         },
                       ),
                     ],
