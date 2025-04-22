@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:qr_code_customizer/screens/home_screen.dart';
+import 'package:qr_code_customizer/screens/auth_choice_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.black,
         ),
       ),
-      home: const HomeScreen(),
+      home: const AuthChoicePage(),
       debugShowCheckedModeBanner: false,
     );
   }
