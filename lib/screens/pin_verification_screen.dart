@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_page.dart';
@@ -49,6 +50,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
     final prefs = await SharedPreferences.getInstance();
     final firstName = prefs.getString('first_name') ?? '';
     final lastName = prefs.getString('last_name') ?? '';
+    final avatarPath = prefs.getString('avatar_path') ?? '';
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -59,9 +61,11 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 40,
-                backgroundImage: AssetImage('assets/images/avatar.png'),
+                backgroundImage: (avatarPath.isNotEmpty && File(avatarPath).existsSync())
+                    ? FileImage(File(avatarPath))
+                    : const AssetImage('assets/images/avatar.png') as ImageProvider,
               ),
               const SizedBox(height: 16),
               const Text(

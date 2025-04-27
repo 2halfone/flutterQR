@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:http/http.dart' as http;
 import 'pin_verification_screen.dart';
 import 'fingerprint_auth_screen.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthChoicePage extends StatefulWidget {
   const AuthChoicePage({Key? key}) : super(key: key);
@@ -16,7 +17,6 @@ class AuthChoicePage extends StatefulWidget {
 class _AuthChoicePageState extends State<AuthChoicePage> {
   final _formKey = GlobalKey<FormState>();
   bool _profileSaved = false;
-  bool _avatarChosen = false;
   String? _avatarPath;
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
@@ -36,7 +36,6 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
         _profileSaved = true;
         final savedAvatar = prefs.getString('avatar_path');
         if (savedAvatar != null && savedAvatar.isNotEmpty) {
-          _avatarChosen = true;
           _avatarPath = savedAvatar;
         }
       });
@@ -50,20 +49,13 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
     await prefs.setString('email', _emailController.text);
     final ts = DateTime.now().toIso8601String();
     await prefs.setString('timestamp', ts);
-    setState(() => _profileSaved = true);
     _sendUserProfileToSheets(
       _firstNameController.text,
       _lastNameController.text,
       _emailController.text,
       ts,
     );
-    // after saving profile, prompt avatar selection
-    _promptAvatarSelection();
-  }
-
-  void _promptAvatarSelection() {
-    // simply proceed to build avatar chooser since _profileSaved is true && !_avatarChosen
-    setState(() { /* triggers avatar pick UI */ });
+    setState(() => _profileSaved = true);
   }
 
   Future<void> _pickAvatar() async {
@@ -71,17 +63,8 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
     if (file != null) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('avatar_path', file.path);
-      setState(() {
-        _avatarChosen = true;
-        _avatarPath = file.path;
-      });
+      setState(() => _avatarPath = file.path);
     }
-  }
-
-  void _skipAvatar() {
-    setState(() {
-      _avatarChosen = true;
-    });
   }
 
   Future<void> _selectAuth(String method) async {
@@ -106,24 +89,29 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
     String email,
     String timestamp,
   ) async {
-    final url = Uri.parse('https://your-apps-script-url');
+    final url = Uri.parse('https://script.google.com/macros/s/AKfycbxK4e-0HgV_znvMCQJiiae6bUr7o4q78lWVm3Xl27logMER_JfufCmReghjCD1RWbWB/exec');
     final body = jsonEncode({
       'first_name': firstName,
       'last_name': lastName,
       'email': email,
       'timestamp': timestamp,
     });
+    debugPrint('[_sendUserProfileToSheets] Sending to $url');
+    debugPrint('[_sendUserProfileToSheets] Payload: $body');
     try {
+      debugPrint('[_sendUserProfileToSheets] HTTP POST in progress...');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: body,
       );
+      debugPrint('[_sendUserProfileToSheets] Response status: ${response.statusCode}');
+      debugPrint('[_sendUserProfileToSheets] Response body: ${response.body}');
       if (response.statusCode != 200) {
-        print('sendUserProfileToSheets failed: ${response.statusCode}');
+        debugPrint('[_sendUserProfileToSheets] Failed with status: ${response.statusCode}');
       }
     } catch (e) {
-      print('sendUserProfileToSheets error: $e');
+      debugPrint('[_sendUserProfileToSheets] Error: $e');
     }
   }
 
@@ -131,62 +119,147 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
   Widget build(BuildContext context) {
     if (!_profileSaved) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Register')),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _firstNameController,
-                  decoration: const InputDecoration(labelText: 'First Name'),
-                  validator: (v) => v == null || v.isEmpty ? 'Enter first name' : null,
-                ),
-                TextFormField(
-                  controller: _lastNameController,
-                  decoration: const InputDecoration(labelText: 'Last Name'),
-                  validator: (v) => v == null || v.isEmpty ? 'Enter last name' : null,
-                ),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (v) => v != null && v.contains('@') ? null : 'Enter valid email',
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _saveUserProfile();
-                    }
-                  },
-                  child: const Text('Continue'),
-                ),
-              ],
+        extendBodyBehindAppBar: true,
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF81D4FA), Color(0xFF80DEEA)],
             ),
           ),
-        ),
-      );
-    } else if (!_avatarChosen) {
-      // avatar selection UI
-      return Scaffold(
-        appBar: AppBar(title: const Text('Choose Your Avatar')),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed: _pickAvatar,
-                  child: const Text('Select Avatar from Gallery'),
+          child: SingleChildScrollView(
+            // full-height box to enable vertical centering
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 350),
+                  child: Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    elevation: 8,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: _firstNameController,
+                              decoration: InputDecoration(
+                                hintText: 'First Name',
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(color: Color(0xFF42A5F5)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(color: Color(0xFF26C6DA)),
+                                ),
+                              ),
+                              validator: (v) =>
+                                  v == null || v.isEmpty ? 'Enter first name' : null,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _lastNameController,
+                              decoration: InputDecoration(
+                                hintText: 'Last Name',
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(color: Color(0xFF42A5F5)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(color: Color(0xFF26C6DA)),
+                                ),
+                              ),
+                              validator: (v) =>
+                                  v == null || v.isEmpty ? 'Enter last name' : null,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _emailController,
+                              decoration: InputDecoration(
+                                hintText: 'Email Address',
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(color: Color(0xFF42A5F5)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(color: Color(0xFF26C6DA)),
+                                ),
+                              ),
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (v) => v != null && v.contains('@')
+                                  ? null
+                                  : 'Enter valid email',
+                            ),
+                            const SizedBox(height: 24),
+                            if (_avatarPath?.isNotEmpty ?? false) ...[
+                              // avatar with shadow for relief
+                              Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 8,
+                                      offset: Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: CircleAvatar(
+                                  radius: 40,
+                                  backgroundImage: FileImage(File(_avatarPath!)),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                            ElevatedButton.icon(
+                              onPressed: _pickAvatar,
+                              icon: const Icon(Icons.image),
+                              label: const Text('Choose Avatar'),
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  _saveUserProfile();
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF26C6DA),
+                                minimumSize: const Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 4,
+                              ),
+                              child: const Text(
+                                'Continue',
+                                style: TextStyle(color: Colors.white, fontSize: 18),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                TextButton(
-                  onPressed: _skipAvatar,
-                  child: const Text('Skip'),
-                ),
-              ],
+              ),
             ),
           ),
         ),
