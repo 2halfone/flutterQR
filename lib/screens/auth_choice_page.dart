@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:http/http.dart' as http;
 import 'pin_verification_screen.dart';
 import 'fingerprint_auth_screen.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AuthChoicePage extends StatefulWidget {
   const AuthChoicePage({Key? key}) : super(key: key);
@@ -15,9 +16,12 @@ class AuthChoicePage extends StatefulWidget {
 class _AuthChoicePageState extends State<AuthChoicePage> {
   final _formKey = GlobalKey<FormState>();
   bool _profileSaved = false;
+  bool _avatarChosen = false;
+  String? _avatarPath;
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -28,7 +32,14 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
   Future<void> _loadProfile() async {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.containsKey('first_name')) {
-      setState(() => _profileSaved = true);
+      setState(() {
+        _profileSaved = true;
+        final savedAvatar = prefs.getString('avatar_path');
+        if (savedAvatar != null && savedAvatar.isNotEmpty) {
+          _avatarChosen = true;
+          _avatarPath = savedAvatar;
+        }
+      });
     }
   }
 
@@ -40,13 +51,53 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
     final ts = DateTime.now().toIso8601String();
     await prefs.setString('timestamp', ts);
     setState(() => _profileSaved = true);
-    // send to Google Sheets (fire-and-forget)
     _sendUserProfileToSheets(
       _firstNameController.text,
       _lastNameController.text,
       _emailController.text,
       ts,
     );
+    // after saving profile, prompt avatar selection
+    _promptAvatarSelection();
+  }
+
+  void _promptAvatarSelection() {
+    // simply proceed to build avatar chooser since _profileSaved is true && !_avatarChosen
+    setState(() { /* triggers avatar pick UI */ });
+  }
+
+  Future<void> _pickAvatar() async {
+    final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
+    if (file != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('avatar_path', file.path);
+      setState(() {
+        _avatarChosen = true;
+        _avatarPath = file.path;
+      });
+    }
+  }
+
+  void _skipAvatar() {
+    setState(() {
+      _avatarChosen = true;
+    });
+  }
+
+  Future<void> _selectAuth(String method) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_method', method);
+    if (method == 'pin') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const PinVerificationScreen()),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const FingerprintAuthScreen()),
+      );
+    }
   }
 
   Future<void> _sendUserProfileToSheets(
@@ -55,7 +106,7 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
     String email,
     String timestamp,
   ) async {
-    final url = Uri.parse('https://script.google.com/macros/s/AKfycbxK4e-0HgV_znvMCQJiiae6bUr7o4q78lWVm3Xl27logMER_JfufCmReghjCD1RWbWB/exec');
+    final url = Uri.parse('https://your-apps-script-url');
     final body = jsonEncode({
       'first_name': firstName,
       'last_name': lastName,
@@ -73,22 +124,6 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
       }
     } catch (e) {
       print('sendUserProfileToSheets error: $e');
-    }
-  }
-
-  Future<void> _selectAuth(String method) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('auth_method', method);
-    if (method == 'pin') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const PinVerificationScreen()),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const FingerprintAuthScreen()),
-      );
     }
   }
 
@@ -133,7 +168,31 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
           ),
         ),
       );
+    } else if (!_avatarChosen) {
+      // avatar selection UI
+      return Scaffold(
+        appBar: AppBar(title: const Text('Choose Your Avatar')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: _pickAvatar,
+                  child: const Text('Select Avatar from Gallery'),
+                ),
+                TextButton(
+                  onPressed: _skipAvatar,
+                  child: const Text('Skip'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     }
+    // else, show authentication choice UI
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(

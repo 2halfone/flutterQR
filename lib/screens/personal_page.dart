@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class PersonalPage extends StatefulWidget {
   const PersonalPage({Key? key}) : super(key: key);
@@ -17,6 +18,7 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
   String _lastName = '';
   String _email = '';
   String _timestamp = '';
+  String _avatarPath = '';
 
   @override
   void initState() {
@@ -32,6 +34,7 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
       _lastName = prefs.getString('last_name') ?? '';
       _email = prefs.getString('email') ?? '';
       _timestamp = prefs.getString('timestamp') ?? '';
+      _avatarPath = prefs.getString('avatar_path') ?? '';
     });
   }
 
@@ -81,9 +84,11 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
                           children: [
-                            const CircleAvatar(
+                            CircleAvatar(
                               radius: 40,
-                              backgroundImage: AssetImage('assets/images/avatar.png'),
+                              backgroundImage: (_avatarPath.isNotEmpty && File(_avatarPath).existsSync())
+                                  ? FileImage(File(_avatarPath))
+                                  : const AssetImage('assets/images/avatar.png') as ImageProvider,
                             ),
                             const SizedBox(width: 16),
                             Expanded(
