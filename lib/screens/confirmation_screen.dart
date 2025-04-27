@@ -387,7 +387,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     );
     
     if (result != null) {
-      _sendAttendanceStatus('Absent - $result');
+      _sendAttendanceStatus(result);
     }
   }
 

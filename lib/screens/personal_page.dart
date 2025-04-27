@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PersonalPage extends StatefulWidget {
   const PersonalPage({Key? key}) : super(key: key);
@@ -12,11 +13,26 @@ class PersonalPage extends StatefulWidget {
 
 class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String _firstName = '';
+  String _lastName = '';
+  String _email = '';
+  String _timestamp = '';
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _firstName = prefs.getString('first_name') ?? '';
+      _lastName = prefs.getString('last_name') ?? '';
+      _email = prefs.getString('email') ?? '';
+      _timestamp = prefs.getString('timestamp') ?? '';
+    });
   }
 
   @override
@@ -75,7 +91,7 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'User Name',
+                                    '$_firstName $_lastName',
                                     style: GoogleFonts.poppins(
                                       color: Colors.white,
                                       fontSize: 24,
@@ -83,12 +99,20 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
                                     ),
                                   ),
                                   Text(
-                                    'user@example.com',
+                                    _email,
                                     style: GoogleFonts.poppins(
                                       color: Colors.white70,
                                       fontSize: 16,
                                     ),
                                   ),
+                                  if (_timestamp.isNotEmpty)
+                                    Text(
+                                      'Last login: $_timestamp',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white70,
+                                        fontSize: 14,
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),

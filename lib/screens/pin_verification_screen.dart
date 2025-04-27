@@ -45,12 +45,50 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
     }
   }
 
+  Future<void> _showWelcomeDialogAndNavigate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final firstName = prefs.getString('first_name') ?? '';
+    final lastName = prefs.getString('last_name') ?? '';
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircleAvatar(
+                radius: 40,
+                backgroundImage: AssetImage('assets/images/avatar.png'),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Welcome back,',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                '$firstName $lastName',
+                style: const TextStyle(fontSize: 20),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    await Future.delayed(const Duration(seconds: 2));
+    Navigator.of(context).pop();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomePage()),
+    );
+  }
+
   void _validatePin() {
     if (_correctPin.isNotEmpty && _pin == _correctPin) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
+      _showWelcomeDialogAndNavigate();
+      return;
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Invalid PIN')),
@@ -138,7 +176,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
         shape: const CircleBorder(),
         padding: const EdgeInsets.all(20),
       ),
-      child: Text(number, style: TextStyle(fontSize: 24)),
+      child: Text(number, style: const TextStyle(fontSize: 24)),
     );
   }
 
@@ -151,7 +189,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
         backgroundColor: Colors.grey[300],
         foregroundColor: Colors.black,
       ),
-      child: icon != null ? Icon(icon) : Text(label, style: TextStyle(fontSize: 18)),
+      child: icon != null ? Icon(icon) : Text(label, style: const TextStyle(fontSize: 18)),
     );
   }
 }
