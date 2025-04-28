@@ -20,7 +20,8 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _bellController;
   late Animation<double> _bellAnimation;
   bool _showStory = false; // toggle visibility
@@ -42,15 +43,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     // Animazione più naturale con oscillazione dinamica
     _bellAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 0.15).chain(CurveTween(curve: Curves.easeOutSine)),
+        tween: Tween<double>(begin: 0.0, end: 0.15)
+            .chain(CurveTween(curve: Curves.easeOutSine)),
         weight: 25.0,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.15, end: -0.15).chain(CurveTween(curve: Curves.easeInOutSine)),
+        tween: Tween<double>(begin: 0.15, end: -0.15)
+            .chain(CurveTween(curve: Curves.easeInOutSine)),
         weight: 50.0,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: -0.15, end: 0.0).chain(CurveTween(curve: Curves.easeInSine)),
+        tween: Tween<double>(begin: -0.15, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeInSine)),
         weight: 25.0,
       ),
     ]).animate(_bellController);
@@ -73,7 +77,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
-  Widget _buildGridAndCalendarSection(double buttonSize, double buttonOffset, double contentWidth) {
+  Widget _buildGridAndCalendarSection(
+      double buttonSize, double buttonOffset, double contentWidth) {
     return Column(
       children: [
         // prima riga
@@ -194,7 +199,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     child: Center(
                       child: Image.asset(
                         'assets/images/daycar.png',
-                        width: buttonSize * 0.8, // icona più piccola rispetto al bottone
+                        width: buttonSize *
+                            0.8, // icona più piccola rispetto al bottone
                         height: buttonSize * 0.8,
                         fit: BoxFit.contain, // mantiene le proporzioni e centra
                       ),
@@ -246,10 +252,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final contentWidth = screenWidth > 850 ? 800.0 : screenWidth * 0.9;
     const maxButtonSize = 160.0;
     const minButtonSize = 50.0;
-    const totalHorizontalPadding = 80.0; // 20px padding on both sides + 20px between buttons
+    const totalHorizontalPadding =
+        80.0; // 20px padding on both sides + 20px between buttons
     final rawButtonSize = (gridWidth - totalHorizontalPadding) / 2;
-    final buttonSize =
-        screenWidth < 400 ? rawButtonSize.clamp(minButtonSize, maxButtonSize) : rawButtonSize.clamp(0.0, maxButtonSize);
+    final buttonSize = screenWidth < 400
+        ? rawButtonSize.clamp(minButtonSize, maxButtonSize)
+        : rawButtonSize.clamp(0.0, maxButtonSize);
     final buttonOffset = buttonSize * (50 / 160);
 
     return Scaffold(
@@ -335,7 +343,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       const SizedBox(width: 12),
                                       const Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               "Welcome to",
@@ -373,14 +382,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       onPressed: () {
                                         Navigator.push(
                                           context,
-                                          MaterialPageRoute(builder: (_) => const OurServicesPage()),
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const OurServicesPage()),
                                         );
                                       },
                                       style: TextButton.styleFrom(
-                                        backgroundColor: Colors.white.withOpacity(0.2),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        backgroundColor:
+                                            Colors.white.withOpacity(0.2),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                         ),
                                       ),
                                       child: const Text(
@@ -399,11 +413,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ),
                         // Toggle button for Our Story
                         TextButton(
-                          onPressed: () => setState(() => _showStory = !_showStory),
+                          onPressed: () =>
+                              setState(() => _showStory = !_showStory),
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.white.withOpacity(0.2),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
                           ),
                           child: Text(
                             'Our Story',
@@ -420,40 +437,55 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           curve: Curves.easeInOut,
                           child: _showStory
                               ? Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 20.0),
                                   child: Card(
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
                                     elevation: 5,
                                     color: Colors.white.withOpacity(0.2),
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 30.0, vertical: 20.0),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text('Our Journey',
                                               textAlign: TextAlign.center,
-                                              style: GoogleFonts.playfairDisplay(
-                                                  color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
+                                              style:
+                                                  GoogleFonts.playfairDisplay(
+                                                      color: Colors.white,
+                                                      fontSize: 26,
+                                                      fontWeight:
+                                                          FontWeight.bold)),
                                           const SizedBox(height: 8),
                                           const Divider(color: Colors.white54),
                                           const SizedBox(height: 20),
                                           Text(
                                             'Four decades of community service and counting',
                                             textAlign: TextAlign.justify,
-                                            style:
-                                                GoogleFonts.openSans(color: Colors.white70, fontSize: 14, height: 1.6),
+                                            style: GoogleFonts.openSans(
+                                                color: Colors.white70,
+                                                fontSize: 14,
+                                                height: 1.6),
                                           ),
                                           Text(
                                             'The Community Hub is a welcoming space for people of all ages, genders and ethnicities to come together, stay safe and active and feel included and valued.',
                                             textAlign: TextAlign.justify,
-                                            style:
-                                                GoogleFonts.openSans(color: Colors.white70, fontSize: 14, height: 1.6),
+                                            style: GoogleFonts.openSans(
+                                                color: Colors.white70,
+                                                fontSize: 14,
+                                                height: 1.6),
                                           ),
                                           Text(
                                             'Set up by the Council of Asian People in 1982 and previously known as The Asian Centre, the Hub, located in the heart of Haringey borough, and its staff and Board members work diligently to fulfil its goal to support and ensure people live an active and healthy life.',
                                             textAlign: TextAlign.justify,
-                                            style:
-                                                GoogleFonts.openSans(color: Colors.white70, fontSize: 14, height: 1.6),
+                                            style: GoogleFonts.openSans(
+                                                color: Colors.white70,
+                                                fontSize: 14,
+                                                height: 1.6),
                                           ),
                                           Text(
                                             '1982\nFounded with a Mission\nEstablished by the Council of Asian People to serve the diverse community of Haringey',
@@ -467,14 +499,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                           Text(
                                             '37 years on the organisation continues to offer services to the diverse community in and around Haringey, focusing particularly, through its activities events, on the physical and emotional well-being and cohesion of people.',
                                             textAlign: TextAlign.justify,
-                                            style:
-                                                GoogleFonts.openSans(color: Colors.white70, fontSize: 14, height: 1.6),
+                                            style: GoogleFonts.openSans(
+                                                color: Colors.white70,
+                                                fontSize: 14,
+                                                height: 1.6),
                                           ),
                                           Text(
                                             'It also provides key support for vulnerable and marginalised residents in the area and maintains an open door, drop-in policy for anyone who is in need of advice and or support.',
                                             textAlign: TextAlign.justify,
-                                            style:
-                                                GoogleFonts.openSans(color: Colors.white70, fontSize: 14, height: 1.6),
+                                            style: GoogleFonts.openSans(
+                                                color: Colors.white70,
+                                                fontSize: 14,
+                                                height: 1.6),
                                           ),
                                           Text(
                                             '"We welcome all to join our organisation and become a member. As a member you get discounts on charges for classes and trips and regularly receive news about events and activities taking place at the Hub."',
@@ -488,35 +524,50 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                           Text(
                                             'From time to time, your views are sought to help us keep providing suitable and stimulating services.',
                                             textAlign: TextAlign.justify,
-                                            style:
-                                                GoogleFonts.openSans(color: Colors.white70, fontSize: 14, height: 1.6),
+                                            style: GoogleFonts.openSans(
+                                                color: Colors.white70,
+                                                fontSize: 14,
+                                                height: 1.6),
                                           ),
                                           Text(
                                             'Join Our Community',
                                             textAlign: TextAlign.justify,
                                             style: GoogleFonts.playfairDisplay(
-                                                color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                                                color: Colors.white,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
                                           ),
                                           Text(
                                             'Our Journey Through the Years',
                                             textAlign: TextAlign.justify,
                                             style: GoogleFonts.playfairDisplay(
-                                                color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600),
                                           ),
                                           Text(
                                             '1982\nFoundation\nEstablished as The Asian Centre by the Council of Asian People',
                                             textAlign: TextAlign.justify,
-                                            style: GoogleFonts.openSans(color: Colors.white, fontSize: 14, height: 1.4),
+                                            style: GoogleFonts.openSans(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                height: 1.4),
                                           ),
                                           Text(
                                             '2000s\nGrowth & Expansion\nExpanded services to meet the evolving needs of our diverse community',
                                             textAlign: TextAlign.justify,
-                                            style: GoogleFonts.openSans(color: Colors.white, fontSize: 14, height: 1.4),
+                                            style: GoogleFonts.openSans(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                height: 1.4),
                                           ),
                                           Text(
                                             'Today\nThe Community Hub\nA vibrant center supporting physical and emotional wellbeing for all',
                                             textAlign: TextAlign.justify,
-                                            style: GoogleFonts.openSans(color: Colors.white, fontSize: 14, height: 1.4),
+                                            style: GoogleFonts.openSans(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                height: 1.4),
                                           ),
                                         ],
                                       ),
@@ -525,7 +576,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 )
                               : const SizedBox.shrink(),
                         ),
-                        _buildGridAndCalendarSection(buttonSize, buttonOffset, contentWidth),
+                        _buildGridAndCalendarSection(
+                            buttonSize, buttonOffset, contentWidth),
                         const SizedBox(height: 30.0),
                       ],
                     ),
@@ -572,7 +624,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const ScanScreen()),
+                                MaterialPageRoute(
+                                    builder: (_) => const ScanScreen()),
                               );
                             },
                           ),
@@ -586,7 +639,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const CalendarPage()),
+                                MaterialPageRoute(
+                                    builder: (_) => const CalendarPage()),
                               );
                             },
                           ),
@@ -600,7 +654,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const VercelAppView()),
+                                MaterialPageRoute(
+                                    builder: (_) => const VercelAppView()),
                               );
                             },
                           ),

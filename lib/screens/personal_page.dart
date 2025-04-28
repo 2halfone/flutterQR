@@ -66,10 +66,14 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
       body: Stack(
         children: [
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/backgrounds/noir-pattern.png'),
                 fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.6), // Regola questo valore (0.0-1.0)
+                  BlendMode.dstATop,
+                ),
               ),
             ),
             child: SafeArea(
@@ -93,31 +97,27 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
                             const SizedBox(width: 16),
                             Expanded(
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                               crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
                                     '$_firstName $_lastName',
+                                   textAlign: TextAlign.center,
                                     style: GoogleFonts.poppins(
-                                      color: Colors.white,
+                                     color: Colors.black,
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  const SizedBox(height: 4),
                                   Text(
                                     _email,
+                                   textAlign: TextAlign.center,
                                     style: GoogleFonts.poppins(
-                                      color: Colors.white70,
+                                     color: Colors.black,
                                       fontSize: 16,
                                     ),
                                   ),
-                                  if (_timestamp.isNotEmpty)
-                                    Text(
-                                      'Last login: $_timestamp',
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.white70,
-                                        fontSize: 14,
-                                      ),
-                                    ),
+                                  const SizedBox(height: 8),
                                 ],
                               ),
                             ),
@@ -128,7 +128,7 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
                       // Tab Bar per le diverse sezioni
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
+                         color: Colors.white.withOpacity(0.4), // Aumentato l'opacità dello sfondo
                           borderRadius: BorderRadius.circular(12),
                         ),
                         margin: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -136,8 +136,8 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
                           controller: _tabController,
                           indicatorColor: Colors.deepPurpleAccent,
                           indicatorWeight: 3,
-                          labelColor: Colors.white,
-                          unselectedLabelColor: Colors.white70,
+                          labelColor: Colors.black,
+                          unselectedLabelColor: Colors.black54,
                           tabs: const [
                             Tab(
                               icon: Icon(Icons.event),
@@ -164,7 +164,7 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
                         child: Container(
                           margin: const EdgeInsets.all(16.0),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
+                           color: Colors.white.withOpacity(0.4),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: TabBarView(

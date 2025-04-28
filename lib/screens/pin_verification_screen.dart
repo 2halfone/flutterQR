@@ -8,10 +8,10 @@ class PinVerificationScreen extends StatefulWidget {
   const PinVerificationScreen({Key? key}) : super(key: key);
 
   @override
-  _PinVerificationScreenState createState() => _PinVerificationScreenState();
+  PinVerificationScreenState createState() => PinVerificationScreenState();
 }
 
-class _PinVerificationScreenState extends State<PinVerificationScreen> {
+class PinVerificationScreenState extends State<PinVerificationScreen> {
   String _pin = '';
   final int _pinLength = 4;
   String _correctPin = '';
@@ -24,8 +24,10 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
 
   Future<void> _loadOrRedirect() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final stored = prefs.getString('user_pin');
     if (stored == null) {
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const SetPinScreen()),
@@ -48,6 +50,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
 
   Future<void> _showWelcomeDialogAndNavigate() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final firstName = prefs.getString('first_name') ?? '';
     final lastName = prefs.getString('last_name') ?? '';
     final avatarPath = prefs.getString('avatar_path') ?? '';
@@ -56,32 +59,36 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
       barrierDismissible: false,
       builder: (_) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircleAvatar(
-                radius: 40,
-                backgroundImage: (avatarPath.isNotEmpty && File(avatarPath).existsSync())
+                radius: 60,
+                backgroundImage: (avatarPath.isNotEmpty
                     ? FileImage(File(avatarPath))
-                    : const AssetImage('assets/images/avatar.png') as ImageProvider,
+                    : const AssetImage('assets/images/avatar.png')) as ImageProvider<Object>?,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               const Text(
                 'Welcome back,',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300),
               ),
+              const SizedBox(height: 16),
               Text(
                 '$firstName $lastName',
-                style: const TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
             ],
           ),
         ),
       ),
     );
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 4));
+    if (!mounted) return;
     Navigator.of(context).pop();
     Navigator.pushReplacement(
       context,
@@ -98,6 +105,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
         const SnackBar(content: Text('Invalid PIN')),
       );
       Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
         setState(() {
           _pin = '';
         });

@@ -204,7 +204,7 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
                             if (_avatarPath?.isNotEmpty ?? false) ...[
                               // avatar with shadow for relief
                               Container(
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
@@ -283,6 +283,7 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
               children: [
                 const Text(
                   'Select Authentication Method',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
