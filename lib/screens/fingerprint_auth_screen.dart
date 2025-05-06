@@ -52,7 +52,7 @@ class _FingerprintAuthScreenState extends State<FingerprintAuthScreen> {
               const SizedBox(height: 16),
               Text(
                 '$firstName $lastName',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
             ],
           ),

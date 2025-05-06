@@ -9,7 +9,7 @@ class OurServicesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final contentWidth = screenWidth > 850 ? 800.0 : screenWidth * 0.9;
+    final contentWidth = screenWidth > 850 ? 800.0 : screenWidth * 0.95;
 
     final services = [
       {
@@ -49,7 +49,7 @@ class OurServicesPage extends StatelessWidget {
               child: Center(
                 child: Container(
                   width: contentWidth,
-                  padding: const EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
                   child: Column(
                     children: [
                       Text(
@@ -79,36 +79,51 @@ class OurServicesPage extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       // services list
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(bottom: 20.0),
-                        itemCount: services.length,
-                        itemBuilder: (context, i) {
-                          final svc = services[i];
-                          return Card(
+                      ...services.map((svc) => 
+                        Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          child: Card(
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            elevation: 3,
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            child: ListTile(
-                              leading: Icon(
-                                svc['icon'] as IconData,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                              title: Text(
-                                svc['title'] as String,
-                                style: GoogleFonts.playfairDisplay(),
-                              ),
-                              subtitle: Text(
-                                svc['description'] as String,
-                                style: GoogleFonts.openSans(),
+                            elevation: 4,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        svc['icon'] as IconData,
+                                        color: Theme.of(context).primaryColor,
+                                        size: 28,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        svc['title'] as String,
+                                        style: GoogleFonts.playfairDisplay(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    svc['description'] as String,
+                                    style: GoogleFonts.openSans(
+                                      fontSize: 16,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        )
+                      ).toList(),
                     ],
                   ),
                 ),

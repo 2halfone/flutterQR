@@ -68,7 +68,7 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/backgrounds/noir-pattern.png'),
+                image: const AssetImage('assets/backgrounds/noir-pattern.png'),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
                   Colors.black.withOpacity(0.6), // Regola questo valore (0.0-1.0)
@@ -297,6 +297,7 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Text(
@@ -325,20 +326,36 @@ class _PersonalPageState extends State<PersonalPage> with SingleTickerProviderSt
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  // Layout responsive per le informazioni di data e luogo
+                  Wrap(
+                    spacing: 16,
                     children: [
-                      const Icon(Icons.calendar_today, size: 16, color: Colors.blue),
-                      const SizedBox(width: 4),
-                      Text(
-                        event['date'] as String,
-                        style: TextStyle(color: Colors.grey[600]),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.calendar_today, size: 16, color: Colors.blue),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              event['date'] as String,
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 16),
-                      const Icon(Icons.location_on, size: 16, color: Colors.red),
-                      const SizedBox(width: 4),
-                      Text(
-                        event['location'] as String,
-                        style: TextStyle(color: Colors.grey[600]),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.location_on, size: 16, color: Colors.red),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              event['location'] as String,
+                              style: TextStyle(color: Colors.grey[600]),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
