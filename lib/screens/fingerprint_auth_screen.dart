@@ -59,7 +59,7 @@ class _FingerprintAuthScreenState extends State<FingerprintAuthScreen> {
         ),
       ),
     );
-    await Future.delayed(const Duration(seconds: 4));
+    await Future.delayed(const Duration(seconds: 2));
     Navigator.of(context).pop();
     Navigator.pushReplacement(
       context,

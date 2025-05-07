@@ -49,11 +49,17 @@ class PinVerificationScreenState extends State<PinVerificationScreen> {
   }
 
   Future<void> _showWelcomeDialogAndNavigate() async {
+    // Pre-caricamento dei dati prima di mostrare il dialogo
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
+    
     final firstName = prefs.getString('first_name') ?? '';
     final lastName = prefs.getString('last_name') ?? '';
-    final avatarPath = prefs.getString('avatar_path') ?? '';
+    
+    // Corretto il percorso dell'immagine dell'icona dell'app
+    const avatarImage = AssetImage('assets/backgrounds/app_icon.png');
+    
+    // Mostra il dialogo con l'icona dell'app fissa
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -68,9 +74,7 @@ class PinVerificationScreenState extends State<PinVerificationScreen> {
             children: [
               CircleAvatar(
                 radius: 60,
-                backgroundImage: (avatarPath.isNotEmpty
-                    ? FileImage(File(avatarPath))
-                    : const AssetImage('assets/images/avatar.png')) as ImageProvider<Object>?,
+                backgroundImage: avatarImage,
               ),
               const SizedBox(height: 20),
               const Text(
@@ -87,7 +91,10 @@ class PinVerificationScreenState extends State<PinVerificationScreen> {
         ),
       ),
     );
-    await Future.delayed(const Duration(seconds: 4));
+    
+    // Riduzione del tempo di attesa da 3 a 1 secondo
+    await Future.delayed(const Duration(seconds: 1));
+    
     if (!mounted) return;
     Navigator.of(context).pop();
     Navigator.pushReplacement(

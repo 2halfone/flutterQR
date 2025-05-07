@@ -1,12 +1,12 @@
-import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:http/http.dart' as http;
 import 'pin_verification_screen.dart';
 import 'fingerprint_auth_screen.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
+
+// Importo dei nuovi servizi modulari
+import '../services/auth_profile_service.dart';
+import '../services/auth_storage_service.dart';
 
 class AuthChoicePage extends StatefulWidget {
   const AuthChoicePage({Key? key}) : super(key: key);
@@ -21,7 +21,10 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
+  
+  // Istanze dei servizi
+  final _profileService = AuthProfileService();
+  final _storageService = AuthStorageService();
 
   @override
   void initState() {
@@ -30,46 +33,41 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
   }
 
   Future<void> _loadProfile() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey('first_name')) {
+    final isProfileSaved = await _profileService.isProfileComplete();
+    if (isProfileSaved) {
+      final avatarPath = await _storageService.loadAvatarPath();
       setState(() {
         _profileSaved = true;
-        final savedAvatar = prefs.getString('avatar_path');
-        if (savedAvatar != null && savedAvatar.isNotEmpty) {
-          _avatarPath = savedAvatar;
+        if (avatarPath != null && avatarPath.isNotEmpty) {
+          _avatarPath = avatarPath;
         }
       });
     }
   }
 
   Future<void> _saveUserProfile() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('first_name', _firstNameController.text);
-    await prefs.setString('last_name', _lastNameController.text);
-    await prefs.setString('email', _emailController.text);
-    final ts = DateTime.now().toIso8601String();
-    await prefs.setString('timestamp', ts);
-    _sendUserProfileToSheets(
-      _firstNameController.text,
-      _lastNameController.text,
-      _emailController.text,
-      ts,
+    final success = await _profileService.saveUserProfile(
+      firstName: _firstNameController.text,
+      lastName: _lastNameController.text,
+      email: _emailController.text,
+      avatarPath: _avatarPath,
     );
-    setState(() => _profileSaved = true);
+    
+    if (success) {
+      setState(() => _profileSaved = true);
+    }
   }
 
   Future<void> _pickAvatar() async {
-    final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
-    if (file != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('avatar_path', file.path);
-      setState(() => _avatarPath = file.path);
+    final pickedPath = await _profileService.pickAvatar();
+    if (pickedPath != null) {
+      setState(() => _avatarPath = pickedPath);
     }
   }
 
   Future<void> _selectAuth(String method) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('auth_method', method);
+    await _profileService.setAuthenticationMethod(method);
+    
     if (method == 'pin') {
       Navigator.push(
         context,
@@ -80,38 +78,6 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
         context,
         MaterialPageRoute(builder: (_) => const FingerprintAuthScreen()),
       );
-    }
-  }
-
-  Future<void> _sendUserProfileToSheets(
-    String firstName,
-    String lastName,
-    String email,
-    String timestamp,
-  ) async {
-    final url = Uri.parse('https://script.google.com/macros/s/AKfycbxK4e-0HgV_znvMCQJiiae6bUr7o4q78lWVm3Xl27logMER_JfufCmReghjCD1RWbWB/exec');
-    final body = jsonEncode({
-      'first_name': firstName,
-      'last_name': lastName,
-      'email': email,
-      'timestamp': timestamp,
-    });
-    debugPrint('[_sendUserProfileToSheets] Sending to $url');
-    debugPrint('[_sendUserProfileToSheets] Payload: $body');
-    try {
-      debugPrint('[_sendUserProfileToSheets] HTTP POST in progress...');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: body,
-      );
-      debugPrint('[_sendUserProfileToSheets] Response status: ${response.statusCode}');
-      debugPrint('[_sendUserProfileToSheets] Response body: ${response.body}');
-      if (response.statusCode != 200) {
-        debugPrint('[_sendUserProfileToSheets] Failed with status: ${response.statusCode}');
-      }
-    } catch (e) {
-      debugPrint('[_sendUserProfileToSheets] Error: $e');
     }
   }
 
@@ -304,9 +270,12 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
                   ),
                   onPressed: () => _selectAuth('pin'),
                 )
-                .animate()
+                .animate(onPlay: (controller) => controller.repeat(reverse: true))
                 .fadeIn(duration: 700.ms)
-                .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 700.ms),
+                .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 700.ms)
+                .then(delay: 500.ms)
+                .shimmer(delay: 200.ms, duration: 1800.ms, color: Colors.white.withOpacity(0.4))
+                .elevation(begin: 0, end: 12, curve: Curves.easeInOut, duration: 1200.ms),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.fingerprint, size: 40),
@@ -319,9 +288,13 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
                   ),
                   onPressed: () => _selectAuth('fingerprint'),
                 )
-                .animate()
+                .animate(onPlay: (controller) => controller.repeat(reverse: true))
                 .fadeIn(duration: 900.ms)
-                .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 900.ms),
+                .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 900.ms)
+                .then(delay: 300.ms)
+                .shimmer(delay: 400.ms, duration: 1800.ms, color: Colors.white.withOpacity(0.5))
+                .elevation(begin: 0, end: 12, curve: Curves.easeInOut, duration: 1400.ms)
+                .blurXY(begin: 0, end: 2, duration: 1500.ms, curve: Curves.easeInOut),
               ],
             ),
           ),
