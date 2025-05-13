@@ -26,7 +26,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
   String? _responseMessage;
   bool _isSuccess = false;
   Timer? _redirectTimer;
-  int _countdownValue = 3; // Countdown value
+  double _countdownValue = 1.5; // Changed to double for 1.5 seconds
 
   // Define our tempered color scheme
   final positiveGreen = Colors.green.shade600;
@@ -43,12 +43,15 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
   // Function to start countdown timer and redirect
   void _startRedirectCountdown() {
     _redirectTimer?.cancel();
-    _countdownValue = 3;
-    
-    _redirectTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_countdownValue > 0) {
+    _countdownValue = 1.5; // Reset to 1.5 seconds
+
+    _redirectTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) { // Tick every 0.5 seconds
+      if (_countdownValue > 0.001) { // Check against a small epsilon for double comparison
         setState(() {
-          _countdownValue--;
+          _countdownValue -= 0.5;
+          if (_countdownValue < 0) { // Ensure countdown doesn't go negative
+            _countdownValue = 0.0;
+          }
         });
       } else {
         timer.cancel();
@@ -565,7 +568,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                         Container(
                           margin: const EdgeInsets.only(bottom: 10),
                           child: Text(
-                            'Redirecting to home in $_countdownValue...',
+                            'Redirecting to home in ${_countdownValue.toStringAsFixed(1)}s...', // Updated to show 1 decimal place
                             style: GoogleFonts.lato(
                               fontSize: isSmallScreen ? 14 : 16,
                               color: Colors.white,
@@ -623,7 +626,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                                 children: [
                                   Expanded(
                                     child: ElevatedButton(
-                                      onPressed: _isLoading ? null : () { _sendAttendanceStatus('Present'); },
+                                      onPressed: (_isLoading || _responseMessage != null) ? null : () { _sendAttendanceStatus('Present'); },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: positiveGreen,
                                         padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 10 : 12),
@@ -646,7 +649,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: ElevatedButton(
-                                      onPressed: _isLoading ? null : _showAbsenceReasonDialog,
+                                      onPressed: (_isLoading || _responseMessage != null) ? null : _showAbsenceReasonDialog,
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: absentRed,
                                         padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 10 : 12),
