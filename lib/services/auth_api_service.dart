@@ -9,14 +9,12 @@ class AuthApiService {
   /// Invia i dati del profilo utente a Google Sheets
   Future<bool> sendUserProfileToSheets({
     required String firstName,
-    required String lastName,
     required String email,
     required String timestamp,
   }) async {
     final url = Uri.parse(_sheetsApiUrl);
     final body = jsonEncode({
       'first_name': firstName,
-      'last_name': lastName,
       'email': email,
       'timestamp': timestamp,
     });

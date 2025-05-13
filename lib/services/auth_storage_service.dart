@@ -5,13 +5,11 @@ class AuthStorageService {
   /// Salva i dati del profilo utente nelle SharedPreferences
   Future<String> saveUserProfile({
     required String firstName,
-    required String lastName,
     required String email,
     String? avatarPath,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('first_name', firstName);
-    await prefs.setString('last_name', lastName);
     await prefs.setString('email', email);
     final ts = DateTime.now().toIso8601String();
     await prefs.setString('timestamp', ts);
@@ -52,7 +50,6 @@ class AuthStorageService {
     final prefs = await SharedPreferences.getInstance();
     return {
       'first_name': prefs.getString('first_name') ?? '',
-      'last_name': prefs.getString('last_name') ?? '',
       'email': prefs.getString('email') ?? '',
       'timestamp': prefs.getString('timestamp') ?? '',
       'avatar_path': prefs.getString('avatar_path') ?? '',

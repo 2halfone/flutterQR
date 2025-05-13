@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'home_page.dart';
 import 'set_pin_screen.dart';
 
@@ -55,52 +56,106 @@ class PinVerificationScreenState extends State<PinVerificationScreen> {
     
     final firstName = prefs.getString('first_name') ?? '';
     final lastName = prefs.getString('last_name') ?? '';
+    final avatarPath = prefs.getString('avatar_path') ?? ''; // Carica l'avatarPath anche qui
     
-    // Corretto il percorso dell'immagine dell'icona dell'app
-    const avatarImage = AssetImage('assets/backgrounds/app_icon.png');
+    ImageProvider<Object> avatarImage;
+    if (avatarPath.isNotEmpty && File(avatarPath).existsSync()) {
+      avatarImage = FileImage(File(avatarPath));
+    } else {
+      avatarImage = const AssetImage('assets/backgrounds/app_icon.png'); // Fallback all'icona dell'app
+    }
     
     // Mostra il dialogo con l'icona dell'app fissa
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        backgroundColor: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundImage: avatarImage,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Welcome back,',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                '$firstName $lastName',
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // Angoli più arrotondati
+        elevation: 8,
+        backgroundColor: Colors.transparent, // Sfondo trasparente per il contenuto personalizzato
+        child: _buildWelcomeDialogContent(context, firstName, lastName, avatarImage),
       ),
     );
     
     // Riduzione del tempo di attesa da 3 a 1 secondo
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 2)); // Aumentato leggermente per dare tempo di leggere
     
     if (!mounted) return;
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(); // Chiude il dialogo
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const HomePage()),
     );
+  }
+
+  Widget _buildWelcomeDialogContent(BuildContext context, String firstName, String lastName, ImageProvider<Object> avatarImage) {
+    return Container(
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 5,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              CircleAvatar(
+                radius: 55,
+                backgroundColor: Colors.blue.shade100.withOpacity(0.5),
+              ),
+              CircleAvatar(
+                radius: 50,
+                backgroundImage: avatarImage,
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2)
+                  ),
+                  child: const Icon(Icons.check, color: Colors.white, size: 18),
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Welcome back!', // Messaggio più accogliente
+            style: TextStyle( // Potresti usare GoogleFonts.lato o simile qui
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '$firstName $lastName',
+            style: TextStyle( // Potresti usare GoogleFonts.lato o simile qui
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          Icon(Icons.verified_user, color: Colors.green, size: 30),
+        ],
+      ),
+    ).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.9, 0.9), end: const Offset(1,1), curve: Curves.easeOutBack);
   }
 
   void _validatePin() {
@@ -163,28 +218,33 @@ class PinVerificationScreenState extends State<PinVerificationScreen> {
   }
 
   Widget _buildKeypad() {
-    return Column(
-      children: [
-        for (var row in [ ['1','2','3'], ['4','5','6'], ['7','8','9'], ['','0',''] ])
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: row.map((value) {
-                if (value == '') {
-                  int pos = row.indexOf(value);
-                  if (pos == 0) {
-                    return _buildActionButton('C', _onClear);
-                  } else {
-                    return _buildActionButton('', _onBackspace, icon: Icons.backspace);
-                  }
-                } else {
-                  return _buildNumberButton(value);
-                }
-              }).toList(),
-            ),
-          ),
-      ],
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 530),
+        child: Column(
+          children: [
+            for (var row in [ ['1','2','3'], ['4','5','6'], ['7','8','9'], ['','0',''] ])
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: row.map((value) {
+                    if (value == '') {
+                      int pos = row.indexOf(value);
+                      if (pos == 0) {
+                        return _buildActionButton('C', _onClear);
+                      } else {
+                        return _buildActionButton('', _onBackspace, icon: Icons.backspace);
+                      }
+                    } else {
+                      return _buildNumberButton(value);
+                    }
+                  }).toList(),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 

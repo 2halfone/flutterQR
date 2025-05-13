@@ -23,7 +23,6 @@ class AuthProfileService {
   /// Salva e sincronizza il profilo utente
   Future<bool> saveUserProfile({
     required String firstName, 
-    required String lastName, 
     required String email,
     String? avatarPath,
   }) async {
@@ -31,7 +30,6 @@ class AuthProfileService {
       // Salva il profilo localmente e ottieni il timestamp
       final timestamp = await _storageService.saveUserProfile(
         firstName: firstName,
-        lastName: lastName,
         email: email,
         avatarPath: avatarPath,
       );
@@ -39,7 +37,6 @@ class AuthProfileService {
       // Invia il profilo al server usando lo stesso timestamp
       await _apiService.sendUserProfileToSheets(
         firstName: firstName,
-        lastName: lastName,
         email: email,
         timestamp: timestamp,
       );

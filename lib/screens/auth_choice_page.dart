@@ -19,12 +19,14 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
   bool _profileSaved = false;
   String? _avatarPath;
   final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   
   // Istanze dei servizi
   final _profileService = AuthProfileService();
   final _storageService = AuthStorageService();
+
+  // Aggiunto per l'effetto hover sulla Card
+  bool _isCardHovered = false;
 
   @override
   void initState() {
@@ -48,7 +50,6 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
   Future<void> _saveUserProfile() async {
     final success = await _profileService.saveUserProfile(
       firstName: _firstNameController.text,
-      lastName: _lastNameController.text,
       email: _emailController.text,
       avatarPath: _avatarPath,
     );
@@ -83,123 +84,124 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('Building AuthChoicePage - _profileSaved: $_profileSaved'); // <-- Debug print
     if (!_profileSaved) {
       return Scaffold(
-        extendBodyBehindAppBar: true,
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF81D4FA), Color(0xFF80DEEA)],
-            ),
-          ),
+        backgroundColor: const Color(0xFFF0F2F5), // Sfondo pagina elegante
+        body: Center(
           child: SingleChildScrollView(
-            // full-height box to enable vertical centering
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: Center(
+            padding: const EdgeInsets.all(24.0),
+            child: MouseRegion(
+              onEnter: (_) => setState(() => _isCardHovered = true),
+              onExit: (_) => setState(() => _isCardHovered = false),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                transform: Matrix4.identity()..scale(_isCardHovered ? 1.02 : 1.0),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 350),
+                  constraints: const BoxConstraints(maxWidth: 400),
                   child: Card(
                     color: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    elevation: 8,
+                    elevation: _isCardHovered ? 12 : 6,
+                    shadowColor: Colors.blueGrey.withOpacity(0.3),
                     child: Padding(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                       child: Form(
                         key: _formKey,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            Text(
+                              'Create Your Profile',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[800],
+                              ),
+                            ).animate().fadeIn(duration: 500.ms).slideY(begin: -0.3, end: 0, curve: Curves.easeOutCubic),
+                            const SizedBox(height: 30), // Aumentato spazio
                             TextFormField(
                               controller: _firstNameController,
                               decoration: InputDecoration(
                                 hintText: 'First Name',
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Color(0xFF42A5F5)),
+                                prefixIcon: Icon(Icons.person_outline, color: Colors.grey[600]),
+                                filled: true,
+                                fillColor: const Color(0xFFF8F9FA),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Color(0xFF26C6DA)),
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(color: Color(0xFF0052D4), width: 1.5),
                                 ),
                               ),
                               validator: (v) =>
                                   v == null || v.isEmpty ? 'Enter first name' : null,
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _lastNameController,
-                              decoration: InputDecoration(
-                                hintText: 'Last Name',
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Color(0xFF42A5F5)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Color(0xFF26C6DA)),
-                                ),
-                              ),
-                              validator: (v) =>
-                                  v == null || v.isEmpty ? 'Enter last name' : null,
-                            ),
-                            const SizedBox(height: 16),
+                            ).animate().fadeIn(delay: 200.ms, duration: 450.ms).slideX(begin: -0.2, curve: Curves.easeOutCubic),
+                            const SizedBox(height: 18), // Leggermente aumentato
                             TextFormField(
                               controller: _emailController,
                               decoration: InputDecoration(
                                 hintText: 'Email Address',
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Color(0xFF42A5F5)),
+                                prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[600]),
+                                filled: true,
+                                fillColor: const Color(0xFFF8F9FA),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Color(0xFF26C6DA)),
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(color: Color(0xFF0052D4), width: 1.5),
                                 ),
                               ),
                               keyboardType: TextInputType.emailAddress,
                               validator: (v) => v != null && v.contains('@')
                                   ? null
                                   : 'Enter valid email',
-                            ),
-                            const SizedBox(height: 24),
+                            ).animate().fadeIn(delay: 350.ms, duration: 450.ms).slideX(begin: -0.2, curve: Curves.easeOutCubic),
+                            const SizedBox(height: 28), // Aumentato spazio
                             if (_avatarPath?.isNotEmpty ?? false) ...[
-                              // avatar with shadow for relief
                               Container(
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black26,
+                                      color: Colors.black.withOpacity(0.1),
                                       blurRadius: 8,
-                                      offset: Offset(0, 4),
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
                                 child: CircleAvatar(
-                                  radius: 40,
+                                  radius: 45,
                                   backgroundImage: FileImage(File(_avatarPath!)),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
+                              ).animate().scale(delay: 450.ms, duration: 400.ms, curve: Curves.elasticOut),
+                              const SizedBox(height: 18),
                             ],
                             ElevatedButton.icon(
                               onPressed: _pickAvatar,
-                              icon: const Icon(Icons.image),
-                              label: const Text('Choose Avatar'),
+                              icon: Icon(Icons.add_a_photo_outlined, color: Colors.grey[700]),
+                              label: Text(
+                                _avatarPath == null ? 'Choose Avatar' : 'Change Avatar',
+                                style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
+                              ),
                               style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFE9ECEF),
                                 minimumSize: const Size(double.infinity, 50),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                elevation: 2,
+                                elevation: 0,
+                                side: BorderSide(color: Colors.grey[300]!),
                               ),
-                            ),
-                            const SizedBox(height: 24),
+                            ).animate().fadeIn(delay: 500.ms, duration: 450.ms).slideY(begin: 0.3, curve: Curves.easeOutCubic),
+                            const SizedBox(height: 28), // Aumentato spazio
                             ElevatedButton(
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
@@ -207,22 +209,23 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
                                 }
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF26C6DA),
-                                minimumSize: const Size(double.infinity, 50),
+                                backgroundColor: const Color(0xFF0052D4), // Blu elegante
+                                minimumSize: const Size(double.infinity, 52),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                elevation: 4,
+                                elevation: 3,
+                                shadowColor: const Color(0xFF0052D4).withOpacity(0.4),
                               ),
                               child: const Text(
                                 'Continue',
-                                style: TextStyle(color: Colors.white, fontSize: 18),
+                                style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
                               ),
-                            ),
+                            ).animate().fadeIn(delay: 650.ms, duration: 450.ms).scale(begin: const Offset(0.9,0.9), end: const Offset(1,1), curve: Curves.elasticOut),
                           ],
                         ),
                       ),
-                    ),
+                    ).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.95,0.95), end: const Offset(1,1), curve: Curves.easeOutCubic),
                   ),
                 ),
               ),
@@ -244,58 +247,61 @@ class _AuthChoicePageState extends State<AuthChoicePage> {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Select Authentication Method',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                )
-                .animate()
-                .fadeIn(duration: 500.ms),
-                const SizedBox(height: 40),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.lock, size: 40),
-                  label: const Text('Use PIN', style: TextStyle(fontSize: 22)),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 70),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    elevation: 6,
-                    padding: const EdgeInsets.all(16),
-                  ),
-                  onPressed: () => _selectAuth('pin'),
-                )
-                .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .fadeIn(duration: 700.ms)
-                .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 700.ms)
-                .then(delay: 500.ms)
-                .shimmer(delay: 200.ms, duration: 1800.ms, color: Colors.white.withOpacity(0.4))
-                .elevation(begin: 0, end: 12, curve: Curves.easeInOut, duration: 1200.ms),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.fingerprint, size: 40),
-                  label: const Text('Use Fingerprint', style: TextStyle(fontSize: 22)),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 70),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    elevation: 6,
-                    padding: const EdgeInsets.all(16),
-                  ),
-                  onPressed: () => _selectAuth('fingerprint'),
-                )
-                .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .fadeIn(duration: 900.ms)
-                .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 900.ms)
-                .then(delay: 300.ms)
-                .shimmer(delay: 400.ms, duration: 1800.ms, color: Colors.white.withOpacity(0.5))
-                .elevation(begin: 0, end: 12, curve: Curves.easeInOut, duration: 1400.ms)
-                .blurXY(begin: 0, end: 2, duration: 1500.ms, curve: Curves.easeInOut),
-              ],
+            child: ConstrainedBox( // Widget aggiunto per limitare la larghezza
+              constraints: const BoxConstraints(maxWidth: 540), // Larghezza massima impostata a 540px
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Select Authentication Method',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  )
+                  .animate()
+                  .fadeIn(duration: 500.ms),
+                  const SizedBox(height: 40),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.lock, size: 40),
+                    label: const Text('Use PIN', style: TextStyle(fontSize: 22)),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 70),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      elevation: 6,
+                      padding: const EdgeInsets.all(16),
+                    ),
+                    onPressed: () => _selectAuth('pin'),
+                  )
+                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                  .fadeIn(duration: 700.ms)
+                  .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 700.ms)
+                  .then(delay: 500.ms)
+                  .shimmer(delay: 200.ms, duration: 1800.ms, color: Colors.white.withOpacity(0.4))
+                  .elevation(begin: 0, end: 12, curve: Curves.easeInOut, duration: 1200.ms),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.fingerprint, size: 40),
+                    label: const Text('Use Fingerprint', style: TextStyle(fontSize: 22)),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 70),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      elevation: 6,
+                      padding: const EdgeInsets.all(16),
+                    ),
+                    onPressed: () => _selectAuth('fingerprint'),
+                  )
+                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                  .fadeIn(duration: 900.ms)
+                  .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 900.ms)
+                  .then(delay: 300.ms)
+                  .shimmer(delay: 400.ms, duration: 1800.ms, color: Colors.white.withOpacity(0.5))
+                  .elevation(begin: 0, end: 12, curve: Curves.easeInOut, duration: 1400.ms)
+                  .blurXY(begin: 0, end: 2, duration: 1500.ms, curve: Curves.easeInOut),
+                ],
+              ),
             ),
           ),
         ),
